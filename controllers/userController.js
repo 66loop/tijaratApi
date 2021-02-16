@@ -35,16 +35,8 @@ exports.register = function(req,res,next){
                         userStatusId: {type:"number", optional:false},
                     };
                 
-                    const v = new validator();
-                    const validateResponse = v.validate(user, schema);
-                
-                    if(validateResponse !== true){
-                        return res.status(400).json({
-                            message: "Validation Failed",
-                            errors: validateResponse
-                        });
-                    }
-                
+                    validateResponse(res, user, schema);
+
                     models.User.create(user).then(result => {
                         res.status(201).json({
                             message: "User Created Successfully",
@@ -70,6 +62,18 @@ exports.register = function(req,res,next){
 /********************User Login*******************/
 
 exports.login = function(req, res){
+    const user = {
+        email:req.body.email,
+        password:req.body.password
+    }
+
+    const schema = {
+        email: {type:"string", optional:false},
+        password: {type:"string", optional:false}
+    };
+
+    validateResponse(res, user, schema);
+
     models.User.findOne({where: {email:req.body.email}}).then(user => {
         if(user === null){
             res.status(401).json({
@@ -95,13 +99,24 @@ exports.login = function(req, res){
             });
         }
     }).catch(error => {
-        res.status(401).json({
+        res.status(500).json({
             message: "Something went wrong",
             error: error
         });
     });
 }
 
+function validateResponse (res, postJson, schema) {
+    const v = new validator();
+    const validateResponse = v.validate(postJson, schema);
+
+    if(validateResponse !== true){
+        return res.status(400).json({
+            message: "Validation Failed",
+            errors: validateResponse
+        });
+    }
+}
 
 /********************Users List*******************/
 exports.getAllUsers = function (req, res, next) {
