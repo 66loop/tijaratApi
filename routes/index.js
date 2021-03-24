@@ -1,9 +1,29 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
+var UserController = require("../controllers/UserController");
+var checkAuthMiddleware = require("../middleware/Check-auth");
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+
+/*Authentication*/
+router.post("/register", UserController.register);
+router.post("/login", UserController.login);
+/* GET users listing. */
+router.get("/list", checkAuthMiddleware.checkAuth, UserController.getAllUsers);
+router.get(
+  "/:userId",
+  checkAuthMiddleware.checkAuth,
+  UserController.getUserById
+);
+router.patch(
+  "/update/:userId",
+  checkAuthMiddleware.checkAuth,
+  UserController.updateUser
+);
+router.delete(
+  "/delete/:userId",
+  checkAuthMiddleware.checkAuth,
+  UserController.deleteUser
+);
 
 module.exports = router;
