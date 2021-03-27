@@ -2,6 +2,8 @@ const bcryptjs = require("bcryptjs");
 const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const buyerController = require('./BuyerController');
+const sellerController = require('./SellerController');
 
 /********************Registering a User*******************/
 exports.register = function (req, res, next) {
@@ -22,6 +24,7 @@ exports.register = function (req, res, next) {
               email: req.body.email,
               password: hash,
               userStatusId: req.body.userStatusId,
+              registeringAs: req.body.registeringAs,
             };
 
             const schema = {
@@ -32,16 +35,60 @@ exports.register = function (req, res, next) {
               email: { type: "string", optional: false },
               password: { type: "string", optional: false },
               userStatusId: { type: "number", optional: true },
+              registeringAs: { type: "string", optional: false },
             };
 
             validateResponse(res, user, schema);
 
             User.create(user)
               .then((result) => {
-                res.status(201).json({
-                  message: "User Created Successfully",
-                  post: result,
-                });
+
+                if (user.registeringAs === 'user' || user.registeringAs === 'buyer') {
+                  buyerController.register(user)
+                    .then(() => {
+                      res.status(201).json({
+                        message: "User Created Successfully",
+                        post: result,
+                      });
+                    });
+                }
+
+                if (user.registeringAs === 'seller') {
+
+                  buyerController.checkIfBuyerExists(user)
+                    .then((resultUpper) => {
+
+                      let promises = []
+                      if (resultUpper) {
+
+                        promises.push(sellerController.register(user));
+
+                      }
+                      else {
+                        promises.push(sellerController.register(user));
+                        promises.push(buyerController.register(user));
+                      }
+
+                      Promise.all(promises)
+                        .then((resultLower => {
+                          res.status(201).json({
+                            message: "User Created Successfully",
+                            post: result,
+                          });
+                        }))
+                        .catch(error => {
+                          res.status(500).json({
+                            message: "Something went wrong",
+                            error: error,
+                          });
+                        });
+
+
+                    })
+                    .catch((err) => {
+                    })
+
+                }
               })
               .catch((error) => {
                 res.status(500).json({
@@ -75,7 +122,6 @@ exports.login = async function (req, res) {
   };
 
   validateResponse(res, user, schema);
-  console.log("user", user);
 
   User.findOne({ email: req.body.email })
     .then((user) => {
