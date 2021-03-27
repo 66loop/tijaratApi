@@ -9,7 +9,7 @@ var usersRouter = require("./routes/users");
 var productsRouter = require("./routes/products");
 var categoriesRouter = require("./routes/categories");
 var mongoose = require("mongoose");
-
+const bodyParser = require("body-parser");
 var app = express();
 
 // view engine setup
@@ -18,8 +18,9 @@ app.set("view engine", "pug");
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);

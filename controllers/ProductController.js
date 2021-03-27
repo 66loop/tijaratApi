@@ -143,7 +143,7 @@ exports.createproduct = function (req, res, next) {
     category: req.body.category,
     rating: req.body.rating,
   };
-
+console.log('hittttttttt', req)
   const schema = {
     name: { type: "string", optional: false },
     price: { type: "string", optional: false },
