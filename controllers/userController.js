@@ -108,6 +108,33 @@ exports.register = function (req, res, next) {
     });
 };
 
+/********************Registering a User as a seller*******************/
+exports.registerUserAsSeller = function (req, res, next) {
+  User.findOne({ email: req.userData.email })
+    .then((result) => {
+      if (result) {
+        sellerController.register(result).then(seller => {
+          res.status(201).json({
+            message: "Seller Created Successfully",
+            post: seller,
+          });
+        }).
+          catch(err => {
+            res.status(500).json({
+              message: "Something went wrong",
+              error: err,
+            });
+          })
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: error,
+      });
+    });
+};
+
 /********************User Login*******************/
 
 exports.login = async function (req, res) {

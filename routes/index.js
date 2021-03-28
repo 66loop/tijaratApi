@@ -15,6 +15,12 @@ router.get(
   checkAuthMiddleware.checkAuth,
   UserController.getUserById
 );
+
+router.post(
+  "/register-as-seller",
+  checkAuthMiddleware.checkAuth,
+  UserController.registerUserAsSeller
+);
 router.patch(
   "/update/:userId",
   checkAuthMiddleware.checkAuth,
