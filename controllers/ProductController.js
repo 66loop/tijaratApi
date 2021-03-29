@@ -2,7 +2,6 @@ const bcryptjs = require("bcryptjs");
 const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
 const product = require("../models/product");
-
 /********************products List*******************/
 exports.getAllproducts = function (req, res, next) {
   product
@@ -156,6 +155,7 @@ console.log('hittttttttt', req)
     sale: { type: "string", optional: false },
     category: { type: "string", optional: false },
     rating: { type: "string", optional: false },
+    // pictures:{ type: "string", optional: false }
   };
 
   const v = new validator();

@@ -9,8 +9,13 @@ var usersRouter = require("./routes/users");
 var productsRouter = require("./routes/products");
 var categoriesRouter = require("./routes/categories");
 var mongoose = require("mongoose");
-const bodyParser = require("body-parser");
+var bodyParser = require('body-parser');
 var app = express();
+var multer = require('multer');
+var upload = multer();
+
+// multer upload
+// app.use(upload.array());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -18,8 +23,9 @@ app.set("view engine", "pug");
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 

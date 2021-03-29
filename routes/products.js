@@ -2,10 +2,12 @@ var express = require("express");
 var router = express.Router();
 var ProductController = require("../controllers/ProductController");
 var checkAuthMiddleware = require("../middleware/Check-auth");
+var upload = require("../config/multerService");
 
 router.post(
   "/create",
   checkAuthMiddleware.checkAuth,
+  upload.any('pictures'),
   ProductController.createproduct
 );
 
