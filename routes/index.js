@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var UserController = require("../controllers/UserController");
+var SellerController = require("../controllers/SellerController");
 var checkAuthMiddleware = require("../middleware/Check-auth");
 
 /* GET home page. */
@@ -8,12 +9,19 @@ var checkAuthMiddleware = require("../middleware/Check-auth");
 /*Authentication*/
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
+router.post("/seller-login", SellerController.sellerLogin)
 /* GET users listing. */
 router.get("/list", checkAuthMiddleware.checkAuth, UserController.getAllUsers);
 router.get(
   "/:userId",
   checkAuthMiddleware.checkAuth,
   UserController.getUserById
+);
+
+router.post(
+  "/register-as-seller",
+  checkAuthMiddleware.checkAuth,
+  UserController.registerUserAsSeller
 );
 router.patch(
   "/update/:userId",
