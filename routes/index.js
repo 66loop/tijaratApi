@@ -8,6 +8,7 @@ var checkAuthMiddleware = require("../middleware/Check-auth");
 /*Authentication*/
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
+router.post("/socialSignin", UserController.socialSignin);
 /* GET users listing. */
 router.get("/list", checkAuthMiddleware.checkAuth, UserController.getAllUsers);
 router.get(

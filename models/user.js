@@ -7,7 +7,8 @@ var userSchema = mongoose.Schema({
   firstName: String,
   lastName: String,
   country: String,
-  city: String
+  city: String,
+  facebookId: String,
 });
 
 var User = mongoose.model("User", userSchema);

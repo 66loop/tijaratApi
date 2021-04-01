@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const buyerController = require('./BuyerController');
 const sellerController = require('./SellerController');
+const fetch = require('node-fetch');
+const common = require('../helper/common')
 
 /********************Registering a User*******************/
 exports.register = function (req, res, next) {
@@ -133,6 +135,124 @@ exports.registerUserAsSeller = function (req, res, next) {
         error: error,
       });
     });
+};
+
+exports.socialSignin = async (req, res, next) => {
+  try {
+    console.log("wint in")
+    const { accessToken, userID, userType } = req.body;
+    console.log(accessToken, userID, 'this is req param');
+    let dataToBeStored = {};
+
+    const urlForFb = `https://graph.facebook.com/v2.11/${userID}/?fields=id,name,email,hometown&access_token=${accessToken}`;
+
+    fetch(urlForFb, {
+      method: 'GET'
+    })
+      .then((resc) => resc.json())
+      .then(async (response) => {
+        const fullName = response.name.split(' ');
+        dataToBeStored = {
+          facebookId: userID,
+          firstName: fullName[0],
+          lastName: fullName[1],
+          email: response.email ? response.email : await common.generateRandomUserName(fullName[0]) + "@gmail.com",
+          country: 'Pakistan',
+          city: 'Lahore'
+        };
+
+        User.findOne({ $and: [{ facebookId: userID }, { facebookId: { $exists: true } }] })
+          .then(foundUser => {
+            if (foundUser) {
+              const token = jwt.sign(
+                {
+                  email: foundUser.email,
+                  userId: foundUser._id,
+                },
+                "secret",
+                function (err, token) {
+                  res.status(200).json({
+                    message: "Authentication successful",
+                    token: token,
+                    userid: foundUser._id
+                  });
+                }
+              );
+            }
+            else {
+              User.create(dataToBeStored)
+                .then((result) => {
+
+                  if (userType === 'user' || userType === 'buyer' || userType === undefined || userType === '') {
+                    buyerController.register(dataToBeStored)
+                      .then(() => {
+                        res.status(201).json({
+                          message: "User Created Successfully",
+                          user: result,
+                        });
+                      });
+                  }
+
+                  if (userType === 'seller') {
+
+                    buyerController.checkIfBuyerExists(dataToBeStored)
+                      .then((resultUpper) => {
+
+                        let promises = []
+                        if (resultUpper) {
+
+                          promises.push(sellerController.register(dataToBeStored));
+
+                        }
+                        else {
+                          promises.push(sellerController.register(dataToBeStored));
+                          promises.push(buyerController.register(dataToBeStored));
+                        }
+
+                        Promise.all(promises)
+                          .then((resultLower => {
+                            res.status(201).json({
+                              message: "User Created Successfully",
+                              post: result,
+                            });
+                          }))
+                          .catch(error => {
+                            res.status(500).json({
+                              message: "Something went wrong",
+                              error: error,
+                            });
+                          });
+
+
+                      })
+                      .catch((err) => {
+                      })
+
+                  }
+                })
+                .catch((error) => {
+                  res.status(500).json({
+                    message: "Something went wrong",
+                    error: error,
+                  });
+                });
+            }
+          })
+      })
+      .catch(err => {
+        res.status(500).json({
+          message: "Something went wrong",
+          error: err.toString(),
+        });
+      });
+  }
+  catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error.toString(),
+    });
+  };
+
 };
 
 /********************User Login*******************/

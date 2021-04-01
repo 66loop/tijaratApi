@@ -9,6 +9,9 @@ var usersRouter = require("./routes/users");
 var productsRouter = require("./routes/products");
 var categoriesRouter = require("./routes/categories");
 var mongoose = require("mongoose");
+var bodyParser = require('body-parser');
+var multer = require('multer');
+var upload = multer();
 
 var app = express();
 
@@ -18,9 +21,10 @@ app.set("view engine", "pug");
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(upload.array()); 
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
