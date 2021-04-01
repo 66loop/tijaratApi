@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var UserController = require("../controllers/UserController");
+var SellerController = require("../controllers/SellerController");
 var checkAuthMiddleware = require("../middleware/Check-auth");
 
 /* GET home page. */
@@ -9,6 +10,7 @@ var checkAuthMiddleware = require("../middleware/Check-auth");
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
 router.post("/socialSignin", UserController.socialSignin);
+router.post("/seller-login", SellerController.sellerLogin)
 /* GET users listing. */
 router.get("/list", checkAuthMiddleware.checkAuth, UserController.getAllUsers);
 router.get(
