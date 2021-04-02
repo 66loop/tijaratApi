@@ -4,9 +4,8 @@ const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
 /********************Registering a Seller*******************/
 exports.register = (user) => {
-  if(user._id)
-  {
-    const newUser = {firstName: user.firstName, lastName: user.lastName, country: user.country, city: user.city, email: user.email, password: user.password};
+  if (user._id) {
+    const newUser = { firstName: user.firstName, lastName: user.lastName, country: user.country, city: user.city, email: user.email, password: user.password };
     user = newUser;
   }
   return new Promise((resolve, reject) => {
@@ -89,6 +88,19 @@ exports.sellerLogin = async function (req, res) {
         error: error,
       });
     });
+};
+
+/********************Updating a Seller*******************/
+exports.updateSeller = (seller) => {
+  return new Promise((resolve, reject) => {
+    Seller.updateOne({ email: seller.email }, seller.updatedProps)
+      .then((result) => {
+        resolve()
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
 };
 
 function validateResponse(res, postJson, schema) {
