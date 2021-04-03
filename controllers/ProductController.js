@@ -141,7 +141,9 @@ exports.createproduct = function (req, res, next) {
     sale: req.body.sale,
     category: req.body.category,
     rating: req.body.rating,
+    pictures: `http://localhost:9000/images/${req.files[0].filename}`
   };
+
 console.log('hittttttttt', req)
   const schema = {
     name: { type: "string", optional: false },
