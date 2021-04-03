@@ -9,7 +9,10 @@ var checkAuthMiddleware = require("../middleware/Check-auth");
 /*Authentication*/
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
-router.post("/seller-login", SellerController.sellerLogin)
+router.post("/socialSignin", UserController.socialSignin);
+router.post("/seller-login", SellerController.sellerLogin);
+router.post("/forgot-password", UserController.forgotPassword);
+router.post("/change-password", checkAuthMiddleware.checkAuth, UserController.changePassword);
 /* GET users listing. */
 router.get("/list", checkAuthMiddleware.checkAuth, UserController.getAllUsers);
 router.get(

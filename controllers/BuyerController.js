@@ -24,3 +24,16 @@ exports.checkIfBuyerExists = (user) => {
       });
   });
 };
+
+/********************Updating a Buyer*******************/
+exports.updateBuyer = (buyer) => {
+  return new Promise((resolve, reject) => {
+    Buyer.updateOne({ email: buyer.email }, buyer.updatedProps)
+      .then((result) => {
+        resolve()
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};

@@ -6,8 +6,6 @@ var upload = require("../config/multerService");
 
 router.post(
   "/create",
-  checkAuthMiddleware.checkAuth,
-  upload.any('pictures'),
   ProductController.createproduct
 );
 
