@@ -11,11 +11,6 @@ var categoriesRouter = require("./routes/categories");
 var mongoose = require("mongoose");
 var bodyParser = require('body-parser');
 var app = express();
-var multer = require('multer');
-var upload = multer();
-
-// multer upload
-// app.use(upload.array());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
