@@ -29,7 +29,7 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
-app.use(upload.array()); 
+// app.use(upload.array()); 
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
