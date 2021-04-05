@@ -38,7 +38,7 @@ exports.register = function (req, res, next) {
               email: { type: "string", optional: false },
               password: { type: "string", optional: false },
               userStatusId: { type: "number", optional: true },
-              registeringAs: { type: "string", optional: false },
+              registeringAs: { type: "string", optional: true },
             };
 
             validateResponse(res, user, schema);
@@ -524,7 +524,6 @@ exports.forgotPassword = function (req, res) {
         const hashedPassword = bcryptjs.hashSync(newPassword, 10);
         User.updateOne({ _id: user._id }, { password: hashedPassword })
           .then((result) => {
-
             if (result) {
               sellerController.updateSeller({ email: req.body.email, updatedProps: { password: hashedPassword } })
                 .then(sellerUpdated => {
