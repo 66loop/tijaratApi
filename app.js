@@ -12,13 +12,14 @@ var mongoose = require("mongoose");
 var bodyParser = require('body-parser');
 var multer = require('multer');
 var upload = multer();
-
+var cors = require('cors')
 var app = express();
 
 // multer upload
 // app.use(upload.array());
 
 // view engine setup
+app.use(cors())
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
