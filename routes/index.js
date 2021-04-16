@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-var UserController = require("../controllers/userController");
+var UserController = require("../controllers/UserController");
 var SellerController = require("../controllers/SellerController");
 var checkAuthMiddleware = require("../middleware/Check-auth");
 
