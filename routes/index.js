@@ -2,7 +2,7 @@ var express = require("express");
 var router = express.Router();
 var UserController = require("../controllers/userController");
 var SellerController = require("../controllers/SellerController");
-var checkAuthMiddleware = require("../middleware/Check-auth");
+var checkAuthMiddleware = require("../middleware/check-auth");
 
 /* GET home page. */
 

@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var CategoryController = require("../controllers/CategoryController");
-var checkAuthMiddleware = require("../middleware/Check-auth");
+var checkAuthMiddleware = require("../middleware/check-auth");
 
 router.post(
   "/create",
