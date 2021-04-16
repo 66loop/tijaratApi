@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const User = require("../models/user");
 
 const generateRandomUserName = async (name = "user") => {
     const user = await User.findOne({ email: name });
