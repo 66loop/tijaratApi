@@ -1,7 +1,7 @@
 const bcryptjs = require("bcryptjs");
 const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
-const product = require("../models/product");
+const product = require("../models/Product");
 /********************products List*******************/
 exports.getAllproducts = function (req, res, next) {
   product
