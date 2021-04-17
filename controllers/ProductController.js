@@ -143,7 +143,7 @@ exports.createproduct = function (req, res, next) {
     category: req.body.category,
     rating: req.body.rating,
     tags:req.body.tags,
-    pictures: `${bucketurl}/public/images/${req.files[0].filename}`
+    pictures: `${bucketurl}/images/${req.files[0].filename}`
   };
 
 console.log('hittttttttt', req.body)
