@@ -141,6 +141,7 @@ exports.createproduct = function (req, res, next) {
     sale: req.body.sale,
     category: req.body.category,
     rating: req.body.rating,
+    tags:req.body.tags,
     pictures: `http://localhost:9000/images/${req.files[0].filename}`
   };
 
