@@ -29,8 +29,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-// app.use(express.static(path.join(__dirname, "public")));
-app.use(express.static(path.resolve('./public')));
+let pathShouldBe = path.resolve(__dirname, 'public');
+console.log(pathShouldBe, "pathShouldBe")
+app.use(express.static(pathShouldBe));
 // app.use(upload.array()); 
 
 app.use("/", indexRouter);
