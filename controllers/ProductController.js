@@ -2,6 +2,7 @@ const bcryptjs = require("bcryptjs");
 const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
 const product = require("../models/Product");
+const bucketurl = require("../config/BucketUrl")
 /********************products List*******************/
 exports.getAllproducts = function (req, res, next) {
   product
@@ -142,7 +143,7 @@ exports.createproduct = function (req, res, next) {
     category: req.body.category,
     rating: req.body.rating,
     tags:req.body.tags,
-    pictures: `http://localhost:9000/images/${req.files[0].filename}`
+    pictures: `${bucketurl}/public/images/${req.files[0].filename}`
   };
 
 console.log('hittttttttt', req.body)
