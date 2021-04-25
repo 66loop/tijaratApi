@@ -45,7 +45,23 @@ exports.register = function (req, res, next) {
 
             User.create(user)
               .then((result) => {
+                const token = jwt.sign(
+                  {
+                    email: user.email,
+                    userId: user.userId,
+                  },
+                  "secret",
+                  function (err, token) {
+                    res.status(200).json({
+                      message: "Authentication successful",
+                      token: token,
+                      userid: user._id
+                    });
+                  }
+                );
 
+                result.token = token;
+                
                 if (user.registeringAs === 'user' || user.registeringAs === 'buyer') {
                   buyerController.register(user)
                     .then(() => {
