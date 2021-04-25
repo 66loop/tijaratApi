@@ -44,30 +44,35 @@ exports.register = function (req, res, next) {
             validateResponse(res, user, schema);
 
             User.create(user)
-              .then((result) => {
-                const token = jwt.sign(
+              .then(async (result) => {
+                let token = await jwt.sign(
                   {
                     email: user.email,
                     userId: user.userId,
                   },
-                  "secret",
-                  function (err, token) {
-                    res.status(200).json({
-                      message: "Authentication successful",
-                      token: token,
-                      userid: user._id
-                    });
-                  }
-                );
+                  "secret");
 
-                result.token = token;
-                
+                console.log(token, "before a")
+
+                const newResult = {
+                  _id: result._id,
+                  firstName: result.firstName,
+                  lastName: result.lastName,
+                  country: result.country,
+                  city: result.city,
+                  email: result.email,
+                  password: result.password,
+                  token
+                }
+
+                console.log(newResult, "after a");
+
                 if (user.registeringAs === 'user' || user.registeringAs === 'buyer') {
                   buyerController.register(user)
                     .then(() => {
                       res.status(201).json({
                         message: "User Created Successfully",
-                        post: result,
+                        post: newResult,
                       });
                     });
                 }
@@ -92,7 +97,7 @@ exports.register = function (req, res, next) {
                         .then((resultLower => {
                           res.status(201).json({
                             message: "User Created Successfully",
-                            post: result,
+                            post: newResult,
                           });
                         }))
                         .catch(error => {
@@ -546,7 +551,7 @@ exports.forgotPassword = function (req, res) {
 
                   buyerController.updateBuyer({ email: req.body.email, updatedProps: { password: hashedPassword } })
                     .then(buyerUpdated => {
-                     
+
                     })
                 })
             } else {
