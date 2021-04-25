@@ -3,6 +3,7 @@ var router = express.Router();
 var UserController = require("../controllers/userController");
 var SellerController = require("../controllers/SellerController");
 var checkAuthMiddleware = require("../middleware/check-auth");
+var upload = require("../config/multerService");
 
 /* GET home page. */
 
@@ -13,6 +14,7 @@ router.post("/socialSignin", UserController.socialSignin);
 router.post("/seller-login", SellerController.sellerLogin);
 router.post("/forgot-password", UserController.forgotPassword);
 router.post("/change-password", checkAuthMiddleware.checkAuth, UserController.changePassword);
+router.post("/upload-any-image", upload.any('pictures'), UserController.uploadImage);
 /* GET users listing. */
 router.get("/list", checkAuthMiddleware.checkAuth, UserController.getAllUsers);
 router.get(

@@ -9,7 +9,9 @@ var SellerSchema = mongoose.Schema({
   country: String,
   city: String,
   facebookId: String,
-  googleId: String
+  googleId: String,
+  shopImageUrl: String,
+  shopName: String
 });
 
 var Seller = mongoose.model("Seller", SellerSchema);

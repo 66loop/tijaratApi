@@ -4,10 +4,8 @@ const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
 /********************Registering a Seller*******************/
 exports.register = (user) => {
-  if (user._id) {
-    const newUser = { firstName: user.firstName, lastName: user.lastName, country: user.country, city: user.city, email: user.email, password: user.password };
-    user = newUser;
-  }
+  const newUser = { firstName: user.user.firstName, lastName: user.user.lastName, country: user.user.country, city: user.user.city, email: user.user.email, password: user.user.password, shopImageUrl: user.shopImageUrl, shopName: user.shopName };
+  user = newUser;
   return new Promise((resolve, reject) => {
     Seller.create(user)
       .then((result) => {
@@ -73,7 +71,7 @@ exports.sellerLogin = async function (req, res) {
                 }
               );
             }
-             else {
+            else {
               res.status(401).json({
                 message: "Invalid Credentials",
               });

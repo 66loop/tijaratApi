@@ -7,6 +7,7 @@ const sellerController = require('./SellerController');
 const fetch = require('node-fetch');
 const common = require('../helper/common');
 const nodemailer = require("nodemailer");
+const bucketurl = require("../config/BucketUrl")
 
 /********************Registering a User*******************/
 exports.register = function (req, res, next) {
@@ -85,11 +86,12 @@ exports.register = function (req, res, next) {
                       let promises = []
                       if (resultUpper) {
 
-                        promises.push(sellerController.register(user));
+                        promises.push(sellerController.register({ user: user, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName }));
 
                       }
                       else {
-                        promises.push(sellerController.register(user));
+                        promises.push(sellerController.register({ user: user, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName }));
+
                         promises.push(buyerController.register(user));
                       }
 
@@ -164,7 +166,8 @@ exports.registerUserAsSeller = function (req, res, next) {
 
 
             if (!sellerFound) {
-              sellerController.register(result).then(seller => {
+
+              sellerController.register({ user: result, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName }).then(seller => {
                 res.status(201).json({
                   message: "Seller Created Successfully",
                   post: newResult,
@@ -618,3 +621,13 @@ exports.forgotPassword = function (req, res) {
       });
     });
 };
+
+/********************Forgot Password*******************/
+exports.uploadImage = function (req, res) {
+  res.status(201).json({
+    message: "Image uploaded succesfully.",
+    imageUrl: `${bucketurl}/images/${req.files[0].filename}`
+  });
+};
+
+
