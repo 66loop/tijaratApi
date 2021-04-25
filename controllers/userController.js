@@ -135,15 +135,39 @@ exports.register = function (req, res, next) {
 /********************Registering a User as a seller*******************/
 exports.registerUserAsSeller = function (req, res, next) {
   User.findOne({ email: req.userData.email })
-    .then((result) => {
+    .then(async (result) => {
       if (result) {
         sellerController.checkIfSellerExists(result)
-          .then(sellerFound => {
+          .then(async sellerFound => {
+
+            let token = await jwt.sign(
+              {
+                email: sellerFound.email,
+                userId: sellerFound.userId,
+              },
+              "secret");
+
+            console.log(token, "before a")
+
+            const newResult = {
+              _id: sellerFound._id,
+              firstName: sellerFound.firstName,
+              lastName: sellerFound.lastName,
+              country: sellerFound.country,
+              city: sellerFound.city,
+              email: sellerFound.email,
+              password: sellerFound.password,
+              token
+            }
+
+            console.log(newResult, "after a");
+
+
             if (!sellerFound) {
               sellerController.register(result).then(seller => {
                 res.status(201).json({
                   message: "Seller Created Successfully",
-                  post: seller,
+                  post: newResult,
                 });
               }).
                 catch(err => {
