@@ -11,12 +11,13 @@ var productSchema = mongoose.Schema({
   stock: Number,
   new: Boolean,
   sale: Boolean,
-  category: String,
+  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   colors: [],
   size: [],
   tags: [],
   rating: Number,
   variants: [],
+  serllerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller' }
 });
 
 var Product = mongoose.model("Product", productSchema);

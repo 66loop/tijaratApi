@@ -28,6 +28,7 @@ exports.getproductById = function (req, res, next) {
 
   product
     .findById(id)
+    .populate('serllerId')
     .then((result) => {
       if (result) {
         res.status(201).json(result);
@@ -143,10 +144,11 @@ exports.createproduct = function (req, res, next) {
     category: req.body.category,
     rating: req.body.rating,
     tags:req.body.tags,
-    pictures: `${bucketurl}/images/${req.files[0].filename}`
+    pictures: `${bucketurl}/images/${req.files[0].filename}`,
+    serllerId: req.body.serllerId
   };
 
-console.log('hittttttttt', req.body)
+console.log('hittttttttt', typeof req.body.category)
   const schema = {
     name: { type: "string", optional: false },
     price: { type: "string", optional: false },
@@ -160,6 +162,7 @@ console.log('hittttttttt', req.body)
     category: { type: "string", optional: false },
     rating: { type: "string", optional: false },
     // pictures:{ type: "string", optional: false }
+    serllerId:{ type: "string", optional:false }
   };
 
   const v = new validator();
