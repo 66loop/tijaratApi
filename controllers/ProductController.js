@@ -63,19 +63,29 @@ exports.updateproduct = function (req, res, next) {
     serllerId: req.body.serllerId
   };
 
+  console.log(req.body, 'req');
+
+  let images = [];
+
+  for (let index = 0; index < req.files.length; index++) {
+    images.push(`${bucketurl}/images/${req.files[index].filename}`);
+  }
+
+  updatedproduct.pictures = images;
+
   const schema = {
     name: { type: "string", optional: false },
-    price: { type: "number", optional: false },
-    salePrice: { type: "number", optional: false },
-    discount: "number",
+    price: { type: "string", optional: false },
+    salePrice: { type: "string", optional: false },
+    discount: "string",
     shortDetails: { type: "string", optional: false },
     description: { type: "string", optional: false },
-    stock: { type: "number", optional: false },
-    new: { type: "boolean", optional: false },
-    sale: { type: "boolean", optional: false },
+    stock: { type: "string", optional: false },
+    new: { type: "string", optional: false },
+    sale: { type: "string", optional: false },
     category: { type: "string", optional: false },
-    rating: { type: "number", optional: false },
-    serllerId:  { type: "string", optional: false },
+    rating: { type: "string", optional: false },
+    serllerId: { type: "string", optional: false },
   };
 
   const v = new validator();
@@ -89,15 +99,23 @@ exports.updateproduct = function (req, res, next) {
   }
 
   product
-    .update(updatedproduct, { where: { id: id } })
+    .updateOne({_id: id}, updatedproduct)
     .then((result) => {
-      if (result) {
-        res.status(201).json({
-          message: "product Updated",
-          product: result,
-        });
+      if (result.nModified) {
+        product
+          .findById(id)
+          .populate('serllerId')
+          .then((resultInner) => {
+            res.status(201).json(resultInner);
+          })
+          .catch((error) => {
+            res.status(500).json({
+              message: "Something went wrong",
+              error: error,
+            });
+          });
       } else {
-        res.status(201).json({ message: "product Not Found" });
+        res.status(500).json({ message: "Something went wrong" });
       }
     })
     .catch((error) => {
@@ -146,12 +164,18 @@ exports.createproduct = function (req, res, next) {
     sale: req.body.sale,
     category: req.body.category,
     rating: req.body.rating,
-    tags:req.body.tags,
-    pictures: `${bucketurl}/images/${req.files[0].filename}`,
+    tags: req.body.tags,
     serllerId: req.body.serllerId
   };
+  let images = [];
 
-console.log('hittttttttt', typeof req.body.category)
+  for (let index = 0; index < req.files.length; index++) {
+    images.push(`${bucketurl}/images/${req.files[index].filename}`);
+  }
+
+  createdproduct.pictures = images;
+
+  console.log('hittttttttt', typeof req.body.category)
   const schema = {
     name: { type: "string", optional: false },
     price: { type: "string", optional: false },
@@ -165,7 +189,7 @@ console.log('hittttttttt', typeof req.body.category)
     category: { type: "string", optional: false },
     rating: { type: "string", optional: false },
     // pictures:{ type: "string", optional: false }
-    serllerId:{ type: "string", optional:false }
+    serllerId: { type: "string", optional: false }
   };
 
   const v = new validator();
