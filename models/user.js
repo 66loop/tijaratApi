@@ -9,6 +9,7 @@ var userSchema = mongoose.Schema({
   country: String,
   city: String,
   facebookId: String,
+  registeredAsSeller: { type: Boolean, default: false }
 });
 
 var User = mongoose.model("User", userSchema);

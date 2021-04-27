@@ -7,7 +7,8 @@ const sellerController = require('./SellerController');
 const fetch = require('node-fetch');
 const common = require('../helper/common');
 const nodemailer = require("nodemailer");
-const bucketurl = require("../config/BucketUrl")
+const bucketurl = require("../config/BucketUrl");
+const Buyer = require("../models/Buyer");
 
 /********************Registering a User*******************/
 exports.register = function (req, res, next) {
@@ -97,6 +98,9 @@ exports.register = function (req, res, next) {
 
                       Promise.all(promises)
                         .then((resultLower => {
+                          updateUserAndBuyerIfRegisteredAsSeller(newResult.email, { registeredAsSeller: true });
+                          updateUserAndBuyerIfRegisteredAsSeller(newResult.email, { registeredAsSeller: true }, "buyer");
+
                           res.status(201).json({
                             message: "User Created Successfully",
                             post: newResult,
@@ -136,38 +140,42 @@ exports.register = function (req, res, next) {
 
 /********************Registering a User as a seller*******************/
 exports.registerUserAsSeller = function (req, res, next) {
+  console.log(req.userData.email, "email");
   User.findOne({ email: req.userData.email })
     .then(async (result) => {
       if (result) {
         sellerController.checkIfSellerExists(result)
           .then(async sellerFound => {
 
-            let token = await jwt.sign(
-              {
-                email: sellerFound.email,
-                userId: sellerFound.userId,
-              },
-              "secret");
-
-            console.log(token, "before a")
-
-            const newResult = {
-              _id: sellerFound._id,
-              firstName: sellerFound.firstName,
-              lastName: sellerFound.lastName,
-              country: sellerFound.country,
-              city: sellerFound.city,
-              email: sellerFound.email,
-              password: sellerFound.password,
-              token
-            }
-
-            console.log(newResult, "after a");
-
-
             if (!sellerFound) {
 
-              sellerController.register({ user: result, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName }).then(seller => {
+              sellerController.register({ user: result, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName }).then(async seller => {
+
+                updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true });
+                updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true }, "buyer");
+
+                let token = await jwt.sign(
+                  {
+                    email: seller.email,
+                    userId: seller.userId,
+                  },
+                  "secret");
+
+                console.log(token, "before a")
+
+                const newResult = {
+                  _id: seller._id,
+                  firstName: seller.firstName,
+                  lastName: seller.lastName,
+                  country: seller.country,
+                  city: seller.city,
+                  email: seller.email,
+                  password: seller.password,
+                  token
+                }
+
+                console.log(newResult, "after a");
+
                 res.status(201).json({
                   message: "Seller Created Successfully",
                   post: newResult,
@@ -631,3 +639,18 @@ exports.uploadImage = function (req, res) {
 };
 
 
+const updateUserAndBuyerIfRegisteredAsSeller = async (email, updateProps, from = "user") => {
+
+  let promisesOfUpdates = [
+    User.updateOne({ email: email }, updateProps)
+  ];
+
+  if (from == 'buyer') {
+    promisesOfUpdates.push(Buyer.updateOne({ email: email }, updateProps))
+  }
+
+  Promise.all(promisesOfUpdates)
+    .then(() => "Updated.")
+    .catch(error => error.toString());
+
+};
