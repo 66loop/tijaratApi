@@ -7,6 +7,7 @@ const bucketurl = require("../config/BucketUrl")
 exports.getAllproducts = function (req, res, next) {
   product
     .find()
+    .populate('serllerId')
     .then((result) => {
       if (result) {
         res.status(201).json(result);
@@ -59,6 +60,7 @@ exports.updateproduct = function (req, res, next) {
     sale: req.body.sale,
     category: req.body.category,
     rating: req.body.rating,
+    serllerId: req.body.serllerId
   };
 
   const schema = {
@@ -73,6 +75,7 @@ exports.updateproduct = function (req, res, next) {
     sale: { type: "boolean", optional: false },
     category: { type: "string", optional: false },
     rating: { type: "number", optional: false },
+    serllerId:  { type: "string", optional: false },
   };
 
   const v = new validator();
