@@ -24,6 +24,7 @@ router.get(
 router.patch(
   "/update/:productId",
   checkAuthMiddleware.checkAuth,
+  upload.any('pictures'),
   ProductController.updateproduct
 );
 router.delete(
