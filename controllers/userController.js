@@ -9,6 +9,7 @@ const common = require('../helper/common');
 const nodemailer = require("nodemailer");
 const bucketurl = require("../config/BucketUrl");
 const Buyer = require("../models/Buyer");
+const Seller = require("../models/Seller");
 
 /********************Registering a User*******************/
 exports.register = function (req, res, next) {
@@ -67,14 +68,20 @@ exports.register = function (req, res, next) {
                   token
                 }
 
+                const allUserProps = { user: newResult }
+
+
                 console.log(newResult, "after a");
 
                 if (user.registeringAs === 'user' || user.registeringAs === 'buyer') {
                   buyerController.register(user)
-                    .then(() => {
+                    .then(async () => {
+                      allUserProps["buyer"] = await Buyer.findOne({ email: user.email });
+
                       res.status(201).json({
                         message: "User Created Successfully",
                         post: newResult,
+                        user: allUserProps
                       });
                     });
                 }
@@ -97,13 +104,16 @@ exports.register = function (req, res, next) {
                       }
 
                       Promise.all(promises)
-                        .then((resultLower => {
+                        .then((async resultLower => {
                           updateUserAndBuyerIfRegisteredAsSeller(newResult.email, { registeredAsSeller: true });
                           updateUserAndBuyerIfRegisteredAsSeller(newResult.email, { registeredAsSeller: true }, "buyer");
+                          allUserProps["seller"] = await Seller.findOne({ email: user.email });
+                          allUserProps["buyer"] = await Buyer.findOne({ email: user.email });
 
                           res.status(201).json({
                             message: "User Created Successfully",
                             post: newResult,
+                            user: allUserProps
                           });
                         }))
                         .catch(error => {
@@ -140,69 +150,91 @@ exports.register = function (req, res, next) {
 
 /********************Registering a User as a seller*******************/
 exports.registerUserAsSeller = function (req, res, next) {
-  console.log(req.userData.email, "email");
-  User.findOne({ email: req.userData.email })
-    .then(async (result) => {
-      if (result) {
-        sellerController.checkIfSellerExists(result)
-          .then(async sellerFound => {
 
-            if (!sellerFound) {
+  const user = {
+    shopImageUrl: req.body.shopImageUrl,
+    shopName: req.body.shopName,
+  }
 
-              sellerController.register({ user: result, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName }).then(async seller => {
+  const schema = {
+    shopImageUrl: { type: "string", optional: false },
+    shopName: { type: "string", optional: false },
+  }
 
-                updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true });
-                updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true }, "buyer");
+  const result = validateResponse(res, user, schema);
 
-                let token = await jwt.sign(
-                  {
+  if (result === true) {
+
+    User.findOne({ email: req.userData.email })
+      .then(async (result) => {
+        if (result) {
+          sellerController.checkIfSellerExists(result)
+            .then(async sellerFound => {
+
+              if (!sellerFound) {
+
+                sellerController.register({ user: result, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName }).then(async seller => {
+
+                  updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true });
+                  updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true }, "buyer");
+
+                  let token = await jwt.sign(
+                    {
+                      email: seller.email,
+                      userId: seller.userId,
+                    },
+                    "secret");
+
+                  console.log(token, "before a")
+
+                  const newResult = {
+                    _id: seller._id,
+                    firstName: seller.firstName,
+                    lastName: seller.lastName,
+                    country: seller.country,
+                    city: seller.city,
                     email: seller.email,
-                    userId: seller.userId,
-                  },
-                  "secret");
+                    password: seller.password,
+                    token
+                  }
 
-                console.log(token, "before a")
+                  const allUserProps = { user: result }
 
-                const newResult = {
-                  _id: seller._id,
-                  firstName: seller.firstName,
-                  lastName: seller.lastName,
-                  country: seller.country,
-                  city: seller.city,
-                  email: seller.email,
-                  password: seller.password,
-                  token
-                }
+                  allUserProps["buyer"] = await Buyer.findOne({ email: req.userData.email });
 
-                console.log(newResult, "after a");
+                  allUserProps["seller"] = await Seller.findOne({ email: req.userData.email });
 
-                res.status(201).json({
-                  message: "Seller Created Successfully",
-                  post: newResult,
-                });
-              }).
-                catch(err => {
-                  res.status(500).json({
-                    message: "Something went wrong",
-                    error: err,
+
+                  res.status(201).json({
+                    message: "Seller Created Successfully",
+                    post: newResult,
+                    user: allUserProps
                   });
-                })
-            }
-            else {
-              res.status(401).json({
-                message: "User already exists as seller"
-              });
-            }
-          })
+                }).
+                  catch(err => {
+                    res.status(500).json({
+                      message: "Something went wrong",
+                      error: err,
+                    });
+                  })
+              }
+              else {
+                res.status(401).json({
+                  message: "User already exists as seller"
+                });
+              }
+            })
 
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({
-        message: "Something went wrong",
-        error: error,
+        }
+      })
+      .catch((error) => {
+        res.status(500).json({
+          message: "Something went wrong",
+          error: error,
+        });
       });
-    });
+  }
+
 };
 
 /********************Social Signin with facebook*******************/
@@ -355,11 +387,19 @@ exports.login = async function (req, res) {
                   userId: user.userId,
                 },
                 "secret",
-                function (err, token) {
+                async function (err, token) {
+                  let allUserProps = { user: user };
+                  allUserProps["buyer"] = await Buyer.findOne({ email: req.body.email });
+                  if (user.registeredAsSeller) {
+                    const seller = await Seller.findOne({ email: req.body.email });
+                    allUserProps["seller"] = seller;
+                  }
+
                   res.status(200).json({
                     message: "Authentication successful",
                     token: token,
-                    userid: user._id
+                    userid: user._id,
+                    user: allUserProps
                   });
                 }
               );
@@ -390,6 +430,9 @@ function validateResponse(res, postJson, schema) {
       message: "Validation Failed",
       errors: validateResponse,
     });
+  }
+  else {
+    return true;
   }
 }
 
