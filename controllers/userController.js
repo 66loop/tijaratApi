@@ -9,6 +9,7 @@ const common = require('../helper/common');
 const nodemailer = require("nodemailer");
 const bucketurl = require("../config/BucketUrl");
 const Buyer = require("../models/Buyer");
+const Seller = require("../models/Seller");
 
 /********************Registering a User*******************/
 exports.register = function (req, res, next) {
@@ -64,10 +65,9 @@ exports.register = function (req, res, next) {
                   city: result.city,
                   email: result.email,
                   password: result.password,
-                  token
+                  token,
+                  seller: result.registeredAsSeller
                 }
-
-                console.log(newResult, "after a");
 
                 if (user.registeringAs === 'user' || user.registeringAs === 'buyer') {
                   buyerController.register(user)
@@ -171,7 +171,7 @@ exports.registerUserAsSeller = function (req, res, next) {
                   city: seller.city,
                   email: seller.email,
                   password: seller.password,
-                  token
+                  token,
                 }
 
                 console.log(newResult, "after a");
@@ -356,10 +356,12 @@ exports.login = async function (req, res) {
                 },
                 "secret",
                 function (err, token) {
+                  console.log('userr', user)
                   res.status(200).json({
                     message: "Authentication successful",
                     token: token,
-                    userid: user._id
+                    userid: user._id,
+                    seller: user.registeredAsSeller
                   });
                 }
               );
@@ -431,6 +433,26 @@ exports.getUserById = function (req, res, next) {
     });
 };
 
+// Get seller
+
+exports.getSellerById = function (req, res, next) {
+  const id = req.params.sellerId;
+
+  Seller.findById(id)
+    .then((result) => {
+      if (result) {
+        res.status(201).json(result);
+      } else {
+        res.status(201).json({ message: "User Not Found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: error,
+      });
+    });
+};
 /********************Update User*******************/
 exports.updateUser = function (req, res, next) {
   const id = req.params.userId;

@@ -23,6 +23,12 @@ router.get(
   UserController.getUserById
 );
 
+router.get(
+  "/seller/:sellerId",
+  checkAuthMiddleware.checkAuth,
+  UserController.getSellerById
+);
+
 router.post(
   "/register-as-seller",
   checkAuthMiddleware.checkAuth,
