@@ -152,12 +152,14 @@ exports.register = function (req, res, next) {
 exports.registerUserAsSeller = function (req, res, next) {
 
   const user = {
-    shopImageUrl: req.body.shopImageUrl,
     shopName: req.body.shopName,
   }
 
+  if(req.file || req.files) {
+    user["shopImageUrl"] = `${bucketurl}/images/${req.files[0].filename}`;
+  }
+
   const schema = {
-    shopImageUrl: { type: "string", optional: false },
     shopName: { type: "string", optional: false },
   }
 
@@ -173,7 +175,7 @@ exports.registerUserAsSeller = function (req, res, next) {
 
               if (!sellerFound) {
 
-                sellerController.register({ user: result, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName }).then(async seller => {
+                sellerController.register({ user: result, ...user }).then(async seller => {
 
                   updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true });
                   updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true }, "buyer");

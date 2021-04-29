@@ -25,6 +25,7 @@ router.get(
 
 router.post(
   "/register-as-seller",
+  upload.any('pictures'),
   checkAuthMiddleware.checkAuth,
   UserController.registerUserAsSeller
 );
