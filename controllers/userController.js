@@ -190,17 +190,6 @@ exports.registerUserAsSeller = function (req, res, next) {
 
                   console.log(token, "before a")
 
-                  const newResult = {
-                    _id: seller._id,
-                    firstName: seller.firstName,
-                    lastName: seller.lastName,
-                    country: seller.country,
-                    city: seller.city,
-                    email: seller.email,
-                    password: seller.password,
-                    token
-                  }
-
                   const allUserProps = { user: result }
 
                 const newResult = {
