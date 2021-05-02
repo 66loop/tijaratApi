@@ -11,7 +11,15 @@ var SellerSchema = mongoose.Schema({
   facebookId: String,
   googleId: String,
   shopImageUrl: String,
-  shopName: String
+  shopName: String,
+  primaryPaymentMethod: {
+    type: mongoose.Schema.Types.Mixed
+  },
+  paymentMethods: [
+    {
+      type: mongoose.Schema.Types.Mixed
+    }
+  ]
 });
 
 var Seller = mongoose.model("Seller", SellerSchema);

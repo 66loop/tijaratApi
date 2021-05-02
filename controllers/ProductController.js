@@ -23,6 +23,26 @@ exports.getAllproducts = function (req, res, next) {
     });
 };
 
+/********************products List filtered by seller*******************/
+exports.getAllproductsOfSeller = function (req, res, next) {
+  product
+    .find({ serllerId: req.params.sellerid })
+    .populate('serllerId')
+    .then((result) => {
+      if (result) {
+        res.status(201).json(result);
+      } else {
+        res.status(201).json({ message: "product Not Found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: error,
+      });
+    });
+};
+
 /********************Get product By Id*******************/
 exports.getproductById = function (req, res, next) {
   const id = req.params.productId;
@@ -63,15 +83,21 @@ exports.updateproduct = function (req, res, next) {
     serllerId: req.body.serllerId
   };
 
-  console.log(req.body, 'req');
 
   let images = [];
 
-  for (let index = 0; index < req.files.length; index++) {
-    images.push(`${bucketurl}/images/${req.files[index].filename}`);
+  if (req.files) {
+    for (let index = 0; index < req.files.length; index++) {
+      images.push(`${bucketurl}/images/${req.files[index].filename}`);
+    }
+
+    updatedproduct.pictures = images;
+  }
+  else {
+    updatedproduct.pictures = req.body.images;
   }
 
-  updatedproduct.pictures = images;
+  console.log(updatedproduct, 'updated product');
 
   const schema = {
     name: { type: "string", optional: false },
@@ -99,7 +125,7 @@ exports.updateproduct = function (req, res, next) {
   }
 
   product
-    .updateOne({_id: id}, updatedproduct)
+    .updateOne({ _id: id }, updatedproduct)
     .then((result) => {
       if (result.nModified) {
         product
@@ -130,8 +156,7 @@ exports.updateproduct = function (req, res, next) {
 exports.deleteproduct = function (req, res, next) {
   const id = req.params.productId;
 
-  product
-    .destroy({ where: { id: id } })
+  product.deleteOne({ _id: id })
     .then((result) => {
       if (result) {
         res.status(201).json({

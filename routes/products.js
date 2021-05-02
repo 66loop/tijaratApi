@@ -13,9 +13,16 @@ router.post(
 
 router.get(
   "/list",
-  // checkAuthMiddleware.checkAuth,
+  checkAuthMiddleware.checkAuth,
   ProductController.getAllproducts
 );
+
+router.get(
+  "/by-seller/:sellerid",
+  checkAuthMiddleware.checkAuth,
+  ProductController.getAllproductsOfSeller
+);
+
 router.get(
   "/:productId",
   checkAuthMiddleware.checkAuth,
