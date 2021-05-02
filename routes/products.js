@@ -13,7 +13,7 @@ router.post(
 
 router.get(
   "/list",
-  checkAuthMiddleware.checkAuth,
+  // checkAuthMiddleware.checkAuth,
   ProductController.getAllproducts
 );
 
