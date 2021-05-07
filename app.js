@@ -9,6 +9,7 @@ var usersRouter = require("./routes/users");
 var productsRouter = require("./routes/products");
 var categoriesRouter = require("./routes/categories");
 var sellerRouter = require("./routes/seller");
+var orderRouter = require("./routes/order");
 var mongoose = require("mongoose");
 var bodyParser = require('body-parser');
 var multer = require('multer');
@@ -40,6 +41,7 @@ app.use("/users", usersRouter);
 app.use("/products", productsRouter);
 app.use("/categories", categoriesRouter);
 app.use("/seller", sellerRouter);
+app.use("/order", orderRouter);
 app.use("/test", (req, res, next) => {
   res.send("Success");
 });
