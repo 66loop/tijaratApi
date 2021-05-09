@@ -13,11 +13,11 @@ var OrderSchema = mongoose.Schema({
             choosenPaymentMethod: {
                 type: mongoose.Schema.Types.Mixed
             },
-            orderStatus: { type: String, default: 'Received' },
+            orderStatus: { type: String, default: 'Processing' },
             childOrderNumber: String
         }
     ],
-    overAllOrderStatus: { type: String, default: 'Received' }
+    overAllOrderStatus: { type: String, default: 'Processing' }
 }, { timestamps: true });
 
 var Order = mongoose.model("Order", OrderSchema);

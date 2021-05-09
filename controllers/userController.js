@@ -74,7 +74,7 @@ exports.register = function (req, res, next) {
 
                 console.log(newResult, "after a");
 
-                if (user.registeringAs === 'user' || user.registeringAs === 'buyer') {
+                if (user.registeringAs === 'user' || user.registeringAs === 'buyer' || user.registeringAs === undefined) {
                   buyerController.register(user)
                     .then(async () => {
                       allUserProps["buyer"] = await Buyer.findOne({ email: user.email });
@@ -95,11 +95,11 @@ exports.register = function (req, res, next) {
                       let promises = []
                       if (resultUpper) {
 
-                        promises.push(sellerController.register({ user: user, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName }));
+                        promises.push(sellerController.register({ user: user, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName, deliveryDays: req.body.deliveryDays  }));
 
                       }
                       else {
-                        promises.push(sellerController.register({ user: user, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName }));
+                        promises.push(sellerController.register({ user: user, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName, deliveryDays: req.body.deliveryDays  }));
 
                         promises.push(buyerController.register(user));
                       }
@@ -154,6 +154,7 @@ exports.registerUserAsSeller = function (req, res, next) {
 
   const user = {
     shopName: req.body.shopName,
+    deliveryDays: req.body.deliveryDays
   }
 
   if(req.file || req.files) {
@@ -162,6 +163,7 @@ exports.registerUserAsSeller = function (req, res, next) {
 
   const schema = {
     shopName: { type: "string", optional: false },
+    deliveryDays: { type: "number", optional: false },
   }
 
   const result = validateResponse(res, user, schema);

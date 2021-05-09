@@ -80,7 +80,8 @@ exports.updateproduct = function (req, res, next) {
     sale: req.body.sale,
     category: req.body.category,
     rating: req.body.rating,
-    serllerId: req.body.serllerId
+    serllerId: req.body.serllerId,
+    condition: req.body.condition
   };
 
 
@@ -112,6 +113,7 @@ exports.updateproduct = function (req, res, next) {
     category: { type: "string", optional: false },
     rating: { type: "string", optional: false },
     serllerId: { type: "string", optional: false },
+    condition: { type: "string", optional: true },
   };
 
   const v = new validator();
@@ -190,7 +192,8 @@ exports.createproduct = function (req, res, next) {
     category: req.body.category,
     rating: req.body.rating,
     tags: req.body.tags,
-    serllerId: req.body.serllerId
+    serllerId: req.body.serllerId,
+    condition: req.body.condition
   };
   let images = [];
 
@@ -215,7 +218,8 @@ exports.createproduct = function (req, res, next) {
     rating: { type: "string", optional: false },
     tags: { type: "string", optional: false },
     // pictures:{ type: "string", optional: false }
-    serllerId: { type: "string", optional: false }
+    serllerId: { type: "string", optional: false },
+    condition: { type: "string", optional: true },
   };
 
   const v = new validator();

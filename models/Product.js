@@ -18,7 +18,8 @@ var productSchema = mongoose.Schema({
   tags: [],
   rating: Number,
   variants: [],
-  serllerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller' }
+  serllerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller' },
+  condition: String
 });
 
 var Product = mongoose.model("Product", productSchema);

@@ -17,7 +17,7 @@ const updateSellerMethod = (seller) => {
 };
 /********************Registering a Seller*******************/
 exports.register = (user) => {
-  const newUser = { firstName: user.user.firstName, lastName: user.user.lastName, country: user.user.country, city: user.user.city, email: user.user.email, password: user.user.password, shopImageUrl: user.shopImageUrl, shopName: user.shopName };
+  const newUser = { firstName: user.user.firstName, lastName: user.user.lastName, country: user.user.country, city: user.user.city, email: user.user.email, password: user.user.password, shopImageUrl: user.shopImageUrl, shopName: user.shopName, deliveryDays: user.deliveryDays };
   user = newUser;
   return new Promise((resolve, reject) => {
     Seller.create(user)

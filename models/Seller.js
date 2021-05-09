@@ -19,7 +19,8 @@ var SellerSchema = mongoose.Schema({
     {
       type: mongoose.Schema.Types.Mixed
     }
-  ]
+  ],
+  deliveryDays: Number
 });
 
 var Seller = mongoose.model("Seller", SellerSchema);
