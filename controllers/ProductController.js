@@ -7,7 +7,7 @@ const bucketurl = require("../config/BucketUrl")
 exports.getAllproducts = function (req, res, next) {
   product
     .find()
-    .populate('serllerId')
+    .populate('serllerId category subCategory')
     .then((result) => {
       if (result) {
         res.status(201).json(result);
@@ -27,7 +27,7 @@ exports.getAllproducts = function (req, res, next) {
 exports.getAllproductsOfSeller = function (req, res, next) {
   product
     .find({ serllerId: req.params.sellerid })
-    .populate('serllerId')
+    .populate('serllerId category subCategory')
     .then((result) => {
       if (result) {
         res.status(201).json(result);
@@ -49,7 +49,7 @@ exports.getproductById = function (req, res, next) {
 
   product
     .findById(id)
-    .populate('serllerId')
+    .populate('serllerId category subCategory')
     .then((result) => {
       if (result) {
         res.status(201).json(result);
@@ -81,7 +81,9 @@ exports.updateproduct = function (req, res, next) {
     category: req.body.category,
     rating: req.body.rating,
     serllerId: req.body.serllerId,
-    condition: req.body.condition
+    condition: req.body.condition,
+    category: req.body.category,
+    subCategory: req.body.subCategory
   };
 
 
@@ -114,6 +116,8 @@ exports.updateproduct = function (req, res, next) {
     rating: { type: "string", optional: false },
     serllerId: { type: "string", optional: false },
     condition: { type: "string", optional: true },
+    category: { type: "string", optional: false },
+    subCategory: { type: "string", optional: false },
   };
 
   const v = new validator();
@@ -193,7 +197,9 @@ exports.createproduct = function (req, res, next) {
     rating: req.body.rating,
     tags: req.body.tags,
     serllerId: req.body.serllerId,
-    condition: req.body.condition
+    condition: req.body.condition,
+    category: req.body.category,
+    subCategory: req.body.subCategory
   };
   let images = [];
 
@@ -220,6 +226,8 @@ exports.createproduct = function (req, res, next) {
     // pictures:{ type: "string", optional: false }
     serllerId: { type: "string", optional: false },
     condition: { type: "string", optional: true },
+    category: { type: "string", optional: false },
+    subCategory: { type: "string", optional: false },
   };
 
   const v = new validator();
