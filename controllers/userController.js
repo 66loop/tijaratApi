@@ -163,7 +163,7 @@ exports.registerUserAsSeller = function (req, res, next) {
 
   const schema = {
     shopName: { type: "string", optional: false },
-    deliveryDays: { type: "number", optional: false },
+    deliveryDays: { type: "string", optional: true },
   }
 
   const result = validateResponse(res, user, schema);
