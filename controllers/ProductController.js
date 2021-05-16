@@ -216,7 +216,7 @@ exports.createproduct = function (req, res, next) {
     sale: { type: "string", optional: false },
     category: { type: "string", optional: false },
     rating: { type: "string", optional: false },
-    tags: { type: "string", optional: false },
+    tags: { type: "string", optional: true },
     // pictures:{ type: "string", optional: false }
     serllerId: { type: "string", optional: false },
     condition: { type: "string", optional: true },
