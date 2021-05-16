@@ -1,18 +1,27 @@
 const bcryptjs = require("bcryptjs");
 const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
-const category = require("../models/Category");
+const Category = require("../models/Category");
+const SubCategory = require("../models/SubCategory");
+const SubCategoryController = require("./SubCategoryController");
 
 /********************categorys List*******************/
 exports.getAllcategories = function (req, res, next) {
-  category
+  Category
     .find()
-    .then((result) => {
-      if (result) {
-        res.status(201).json(result);
-      } else {
-        res.status(201).json({ message: "category Not Found" });
+    .then(async (result) => {
+      let categories = [];
+      for (let index = 0; index < result.length; index++) {
+        const element = result[index];
+        let subCategories = await SubCategory.find({ category: element._id });
+
+        categories.push({
+          category: element,
+          subCategories: subCategories
+        });
       }
+      res.status(201).json(categories);
+
     })
     .catch((error) => {
       res.status(500).json({
@@ -24,13 +33,18 @@ exports.getAllcategories = function (req, res, next) {
 
 /********************Get category By Id*******************/
 exports.getcategoryById = function (req, res, next) {
-  const id = req.params.categoryId;
-
-  category
-    .findByPk(id)
-    .then((result) => {
+  const id = req.params.categoryid;
+  console.log(id, 'id');
+  Category
+    .findOne({ _id: id })
+    .then(async (result) => {
       if (result) {
-        res.status(201).json(result);
+        let category = {
+          category: result
+        };
+        let subCategories = await SubCategory.find({ category: result._id });
+        category.subCategories = subCategories;
+        res.status(201).json(category);
       } else {
         res.status(201).json({ message: "category Not Found" });
       }
@@ -45,10 +59,10 @@ exports.getcategoryById = function (req, res, next) {
 
 /********************Update category*******************/
 exports.updatecategory = function (req, res, next) {
-  const id = req.params.categoryId;
+  const id = req.params.categoryid;
   const updatedcategory = {
     name: req.body.name,
-  };
+   };
 
   const schema = {
     name: { type: "string", optional: false },
@@ -64,8 +78,8 @@ exports.updatecategory = function (req, res, next) {
     });
   }
 
-  category
-    .update(updatedcategory, { where: { id: id } })
+  Category
+    .updateOne({ _id: id }, updatedcategory)
     .then((result) => {
       if (result) {
         res.status(201).json({
@@ -86,15 +100,23 @@ exports.updatecategory = function (req, res, next) {
 
 /********************Delete category*******************/
 exports.deletecategory = function (req, res, next) {
-  const id = req.params.categoryId;
+  const id = req.params.categoryid;
 
-  category
-    .destroy({ where: { id: id } })
+  Category
+    .deleteOne({ _id: id })
     .then((result) => {
       if (result) {
-        res.status(201).json({
-          message: "category Deleted",
-          category: result,
+        SubCategory.deleteMany({category: id}).then(resp => {
+          res.status(201).json({
+            message: "category Deleted",
+            category: result,
+          });
+        })
+        .catch(err => {
+          res.status(500).json({
+            message: "Something went wrong",
+            error: err.toString(),
+          });
         });
       } else {
         res.status(201).json({ message: "category Not Found" });
@@ -111,7 +133,7 @@ exports.deletecategory = function (req, res, next) {
 /********************Create category*******************/
 exports.createcategory = function (req, res, next) {
   const createdcategory = {
-    name: req.body.name,
+    name: req.body.name
   };
 
   const schema = {
@@ -128,17 +150,34 @@ exports.createcategory = function (req, res, next) {
     });
   }
 
-  category
+  Category
     .create(createdcategory)
     .then((result) => {
-      if (result) {
-        res.status(201).json({
-          message: "category created",
-          category: result,
+      let subCategories = [];
+      for (let index = 0; index < req.body.subCategories.length; index++) {
+        const element = req.body.subCategories[index];
+
+        subCategories.push({
+          category: result._id,
+          name: element
         });
-      } else {
-        res.status(201).json({ message: "category Not Found" });
+
       }
+
+      SubCategoryController.createSubCategory(subCategories)
+        .then(subCategoriesDone => {
+          console.log(subCategoriesDone, "sub categories");
+          res.status(201).json({
+            message: "category created",
+            category: result,
+          });
+        })
+        .catch(err => {
+          res.status(500).json({
+            message: "Something went wrong",
+            error: err.toString(),
+          });
+        });
     })
     .catch((error) => {
       res.status(500).json({

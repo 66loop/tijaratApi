@@ -177,7 +177,6 @@ exports.registerUserAsSeller = function (req, res, next) {
             .then(async sellerFound => {
 
               if (!sellerFound) {
-
                 sellerController.register({ user: result, ...user }).then(async seller => {
 
                   updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true });
