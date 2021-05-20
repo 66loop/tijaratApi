@@ -96,11 +96,12 @@ exports.updateproduct = function (req, res, next) {
 
     updatedproduct.pictures = images;
   }
-  else {
-    updatedproduct.pictures = req.body.images;
+
+  if (req.body.images) {
+    updatedproduct.pictures.push(...req.body.images);
   }
 
-  console.log(updatedproduct, 'updated product');
+  console.log(updatedproduct.pictures, 'updated product');
 
   const schema = {
     name: { type: "string", optional: false },
@@ -193,7 +194,6 @@ exports.createproduct = function (req, res, next) {
     stock: req.body.stock,
     new: req.body.new,
     sale: req.body.sale,
-    category: req.body.category,
     rating: req.body.rating,
     tags: req.body.tags,
     serllerId: req.body.serllerId,
