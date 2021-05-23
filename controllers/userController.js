@@ -163,7 +163,7 @@ exports.registerUserAsSeller = function (req, res, next) {
 
   const schema = {
     shopName: { type: "string", optional: false },
-    deliveryDays: { type: "string", optional: true },
+    deliveryDays: { type: "number", optional: true },
   }
 
   const result = validateResponse(res, user, schema);
@@ -178,7 +178,7 @@ exports.registerUserAsSeller = function (req, res, next) {
 
               if (!sellerFound) {
                 sellerController.register({ user: result, ...user }).then(async seller => {
-
+                  console.log(seller, 'seller');
                   updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true });
                   updateUserAndBuyerIfRegisteredAsSeller(req.userData.email, { registeredAsSeller: true }, "buyer");
 
@@ -189,9 +189,9 @@ exports.registerUserAsSeller = function (req, res, next) {
                     },
                     "secret");
 
-                  console.log(token, "before a")
+                  console.log(seller, "before a")
 
-                  const allUserProps = { user: result }
+                  const allUserProps = { user: seller }
 
                 const newResult = {
                   _id: seller._id,

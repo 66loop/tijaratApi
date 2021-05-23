@@ -14,7 +14,8 @@ var OrderSchema = mongoose.Schema({
                 type: mongoose.Schema.Types.Mixed
             },
             orderStatus: { type: String, default: 'Processing' },
-            childOrderNumber: String
+            childOrderNumber: String,
+            paymentDone: { type: Boolean, default: false }
         }
     ],
     overAllOrderStatus: { type: String, default: 'Processing' }

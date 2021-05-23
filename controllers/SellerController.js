@@ -19,6 +19,16 @@ const updateSellerMethod = (seller) => {
 exports.register = (user) => {
   const newUser = { firstName: user.user.firstName, lastName: user.user.lastName, country: user.user.country, city: user.user.city, email: user.user.email, password: user.user.password, shopImageUrl: user.shopImageUrl, shopName: user.shopName, deliveryDays: user.deliveryDays };
   user = newUser;
+  user.primaryPaymentMethod = {
+    "method": "COD",
+    "methodDisplayName": "Cash on delivery"
+  };
+  user.paymentMethods = [
+    {
+      "method": "COD",
+      "methodDisplayName": "Cash on delivery"
+    }
+  ];
   return new Promise((resolve, reject) => {
     Seller.create(user)
       .then((result) => {

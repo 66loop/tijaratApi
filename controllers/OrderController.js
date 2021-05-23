@@ -43,7 +43,8 @@ exports.createOrder = async function (req, res) {
             price: element.product.price,
             total: element.quantity * element.product.price,
             choosenPaymentMethod: element.choosenPaymentMethod,
-            childOrderNumber: dataToBeStored.masterOrderNumber + '-' + (index + 1)
+            childOrderNumber: dataToBeStored.masterOrderNumber + '-' + (index + 1),
+            paymentDone: element.paymentDone
         };
 
         dataToBeStored.orders.push(orderIs);
