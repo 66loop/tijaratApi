@@ -18,7 +18,7 @@ router.post(
 
 router.get(
   "/list",
-  checkAuthMiddleware.checkAuth,
+  // checkAuthMiddleware.checkAuth,
   CategoryController.getAllcategories
 );
 router.get(
