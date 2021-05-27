@@ -44,7 +44,8 @@ exports.createOrder = async function (req, res) {
             total: element.quantity * element.product.price,
             choosenPaymentMethod: element.choosenPaymentMethod,
             childOrderNumber: dataToBeStored.masterOrderNumber + '-' + (index + 1),
-            paymentDone: element.paymentDone
+            paymentDone: (element.paymentEvidence ? (element.paymentEvidence.trxId !== undefined || element.paymentEvidence.trxId !== "" || element.paymentEvidence.screenshot !== "" || element.paymentEvidence.screenshot !== undefined) : false),
+            paymentEvidence: element.paymentEvidence,
         };
 
         dataToBeStored.orders.push(orderIs);
@@ -66,18 +67,19 @@ exports.createOrder = async function (req, res) {
 /********************Get Order*******************/
 exports.getOrder = async function (req, res) {
 
+    console.log(req.params.sellerId, 'you');
     Order.find({ "orders.seller": req.params.sellerId })
         .populate('user orders.product orders.seller')
         .then(response => {
             let ordersShouldBe = [];
-
+            console.log(response[0].orders[0], 'response');
             for (let index = 0; index < response.length; index++) {
                 const element = response[index];
-
-                let differentSellers = element.orders.map(x => x.product.serllerId).filter((value, index, self) => self.indexOf(value) === index);
+                console.log(JSON.stringify(element, 'elem'))
+                let differentSellers = element.orders.map(x => x.product.seller).filter((value, index, self) => self.indexOf(value) === index);
 
                 if (differentSellers.length > 1) {
-                    let ordersSpecificToASeller = element.orders.filter(item => item.product.serllerId.toString() === req.params.sellerId);
+                    let ordersSpecificToASeller = element.orders.filter(item => item.product.seller.toString() === req.params.sellerId);
                     ordersShouldBe.push({ _id: element._id, user: element.user, masterOrderNumber: element.masterOrderNumber, createdAt: element.createdAt, updatedAt: element.updatedAt, orders: ordersSpecificToASeller });
                 }
                 else {
@@ -162,10 +164,10 @@ exports.getOrderByUser = async function (req, res) {
             for (let index = 0; index < response.length; index++) {
                 const element = response[index];
 
-                let differentSellers = element.orders.map(x => x.product.serllerId).filter((value, index, self) => self.indexOf(value) === index);
+                let differentSellers = element.orders.map(x => x.product.seller).filter((value, index, self) => self.indexOf(value) === index);
 
                 if (differentSellers.length > 1) {
-                    let ordersSpecificToASeller = element.orders.filter(item => item.product.serllerId.toString() === req.params.sellerId);
+                    let ordersSpecificToASeller = element.orders.filter(item => item.product.seller.toString() === req.params.sellerId);
                     ordersShouldBe.push({ _id: element._id, user: element.user, masterOrderNumber: element.masterOrderNumber, createdAt: element.createdAt, updatedAt: element.updatedAt, orders: ordersSpecificToASeller });
                 }
                 else {

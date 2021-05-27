@@ -15,7 +15,11 @@ var OrderSchema = mongoose.Schema({
             },
             orderStatus: { type: String, default: 'Processing' },
             childOrderNumber: String,
-            paymentDone: { type: Boolean, default: false }
+            paymentDone: { type: Boolean, default: false },
+            paymentEvidence: {
+                trxId: { type: String },
+                screenshot: { type: String }
+            }
         }
     ],
     overAllOrderStatus: { type: String, default: 'Processing' }
