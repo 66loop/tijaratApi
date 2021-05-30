@@ -95,11 +95,11 @@ exports.register = function (req, res, next) {
                       let promises = []
                       if (resultUpper) {
 
-                        promises.push(sellerController.register({ user: user, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName, deliveryDays: req.body.deliveryDays  }));
+                        promises.push(sellerController.register({ user: user, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName, deliveryDays: req.body.deliveryDays }));
 
                       }
                       else {
-                        promises.push(sellerController.register({ user: user, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName, deliveryDays: req.body.deliveryDays  }));
+                        promises.push(sellerController.register({ user: user, shopImageUrl: req.body.shopImageUrl, shopName: req.body.shopName, deliveryDays: req.body.deliveryDays }));
 
                         promises.push(buyerController.register(user));
                       }
@@ -157,7 +157,7 @@ exports.registerUserAsSeller = function (req, res, next) {
     deliveryDays: req.body.deliveryDays
   }
 
-  if(req.file || req.files) {
+  if (req.file || req.files) {
     user["shopImageUrl"] = `${bucketurl}/images/${req.files[0].filename}`;
   }
 
@@ -193,16 +193,16 @@ exports.registerUserAsSeller = function (req, res, next) {
 
                   const allUserProps = { user: seller }
 
-                const newResult = {
-                  _id: seller._id,
-                  firstName: seller.firstName,
-                  lastName: seller.lastName,
-                  country: seller.country,
-                  city: seller.city,
-                  email: seller.email,
-                  password: seller.password,
-                  token,
-                }
+                  const newResult = {
+                    _id: seller._id,
+                    firstName: seller.firstName,
+                    lastName: seller.lastName,
+                    country: seller.country,
+                    city: seller.city,
+                    email: seller.email,
+                    password: seller.password,
+                    token,
+                  }
                   allUserProps["buyer"] = await Buyer.findOne({ email: req.userData.email });
 
                   // allUserProps["seller"] = await Seller.findOne({ email: req.userData.email });
@@ -576,23 +576,36 @@ exports.deleteUser = function (req, res, next) {
 /********************Change Password*******************/
 exports.changePassword = function (req, res, next) {
   try {
+    const userRequest = {
+      email: req.body.email,
+      oldPassword: req.body.oldPassword,
+      password: req.body.password,
+
+    };
+
+    const schema = {
+      email: { type: "string", optional: false },
+      oldPassword: { type: "string", optional: false },
+      password: { type: "string", optional: false },
+    };
+
+    validateResponse(res, userRequest, schema);
+
     User.findOne({ email: req.body.email })
-      .then((user) => {
-        if (user && bcryptjs.compareSync(req.body.oldPassword, user.password)) {
+      .then(async (user) => {
+        if (user && await bcryptjs.compareSync(req.body.oldPassword, user.password)) {
           const updatedPassword = bcryptjs.hashSync(req.body.password, 10);
           User.updateOne({ _id: user._id }, { password: updatedPassword })
-            .then((result) => {
+            .then(async (result) => {
               if (result) {
-                sellerController.updateSeller({ email: req.body.email, updatedProps: { password: updatedPassword } })
-                  .then(sellerUpdated => {
 
-                    buyerController.updateBuyer({ email: req.body.email, updatedProps: { password: updatedPassword } })
-                      .then(buyerUpdated => {
-                        res.status(201).json({
-                          message: "Password Updated"
-                        });
-                      })
-                  })
+                if (user.registeredAsSeller) {
+                  await buyerController.updateBuyer({ email: req.body.email, updatedProps: { password: updatedPassword } })
+                }
+                await sellerController.updateSeller({ email: req.body.email, updatedProps: { password: updatedPassword } })
+
+                res.status(201).json({ message: "Password updated successfully." });
+
               } else {
                 res.status(201).json({ message: "User Not Found" });
               }
