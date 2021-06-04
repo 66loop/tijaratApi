@@ -52,10 +52,23 @@ exports.createOrder = async function (req, res) {
     }
 
     Order.create(dataToBeStored).then((response) => {
-        res.status(200).json({
-            message: "Order created",
-            token: dataToBeStored
-        });
+
+        Order.find({ _id: response._id })
+            .populate('user orders.product orders.seller')
+            .then(responseOrder => {
+
+                res.status(200).json({
+                    message: "Order fetched",
+                    order: responseOrder
+                });
+
+            })
+            .catch(error => {
+                res.status(500).json({
+                    message: "Something went wrong",
+                    error: error.toString(),
+                });
+            })
     }).catch((error) => {
         res.status(500).json({
             message: "Something went wrong",
