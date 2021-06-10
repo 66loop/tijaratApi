@@ -34,6 +34,11 @@ router.patch(
   upload.any('pictures'),
   ProductController.updateproduct
 );
+router.patch(
+  "/update-status/:productId",
+  // checkAuthMiddleware.checkAuth,
+  ProductController.updateproductToInActive
+);
 router.delete(
   "/delete/:productId",
   checkAuthMiddleware.checkAuth,

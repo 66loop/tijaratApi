@@ -259,3 +259,38 @@ exports.createproduct = function (req, res, next) {
       });
     });
 };
+
+/********************Update product status*******************/
+exports.updateproductToInActive = function (req, res, next) {
+  const id = req.params.productId;
+  const updatedproduct = {
+    isActive: req.body.isActive,
+  };
+
+  product
+    .updateOne({ _id: id }, updatedproduct)
+    .then((result) => {
+      if (result.nModified) {
+        product
+          .findById(id)
+          .populate('serllerId')
+          .then((resultInner) => {
+            res.status(201).json(resultInner);
+          })
+          .catch((error) => {
+            res.status(500).json({
+              message: "Something went wrong",
+              error: error,
+            });
+          });
+      } else {
+        res.status(500).json({ message: "Something went wrong" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: error,
+      });
+    });
+};

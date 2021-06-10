@@ -19,7 +19,8 @@ var productSchema = mongoose.Schema({
   rating: Number,
   variants: [],
   serllerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller' },
-  condition: String
+  condition: String,
+  isActive: { type: Boolean, default: true }
 });
 
 var Product = mongoose.model("Product", productSchema);
