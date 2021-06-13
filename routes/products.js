@@ -24,6 +24,11 @@ router.get(
 );
 
 router.get(
+  "/search-product/",
+  // checkAuthMiddleware.checkAuth,
+  ProductController.searchProduct
+);
+router.get(
   "/:productId",
   checkAuthMiddleware.checkAuth,
   ProductController.getproductById

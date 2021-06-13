@@ -23,6 +23,32 @@ exports.getAllproducts = function (req, res, next) {
     });
 };
 
+/********************products List*******************/
+exports.searchProduct = function (req, res, next) {
+  product
+    .find({})
+    .populate('serllerId category subCategory')
+    .then((result) => {
+      if (result) {
+        let searchText = req.query.search;
+
+        let arrayToSend = result.filter(x => x.name.includes(searchText) || x.shortDetails.includes(searchText) || x.description.includes(searchText) || x.category.name.includes(searchText) || x.subCategory.name.includes(searchText))
+
+        arrayToSend = arrayToSend.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        res.status(201).json(arrayToSend);
+
+      } else {
+        res.status(201).json({ message: "product Not Found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: error,
+      });
+    });
+};
+
 /********************products List filtered by seller*******************/
 exports.getAllproductsOfSeller = function (req, res, next) {
   product
