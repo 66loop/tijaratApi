@@ -10,7 +10,9 @@ var BuyerSchema = mongoose.Schema({
   city: String,
   facebookId: String,
   googleId: String,
-  registeredAsSeller: { type: Boolean, default: false }
+  registeredAsSeller: { type: Boolean, default: false },
+  rating: { type: Number, default: false },
+  reviews: Array
 });
 
 var Buyer = mongoose.model("Buyer", BuyerSchema);

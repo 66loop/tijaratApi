@@ -2,7 +2,7 @@ const bcryptjs = require("bcryptjs");
 const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
 const product = require("../models/Product");
-const bucketurl = require("../config/BucketUrl")
+const bucketurl = require("../config/BucketUrl");
 /********************products List*******************/
 exports.getAllproducts = function (req, res, next) {
   product
@@ -320,3 +320,35 @@ exports.updateproductToInActive = function (req, res, next) {
       });
     });
 };
+
+/********************Update product status*******************/
+exports.addReview = async function (req, res, next) {
+
+  try {
+    for (let index = 0; index < req.body.reviews.length; index++) {
+      const element = req.body.reviews[index];
+      let dbproduct = await product.findOne({ _id: element.product });
+      if (dbproduct) {
+        let totalRating = 0;
+        if (dbproduct.reviews.length > 0) {
+          totalRating = (((dbproduct.reviews.map(item => item.rating).reduce((prev, next) => prev + next)) + element.rating) / (dbproduct.reviews.length + 1)).toFixed(1);
+        }
+        else {
+          totalRating = element.rating;
+        }
+        let totalReviews = [...dbproduct.reviews, element.review];
+
+        await product.updateOne({ _id: dbproduct._id }, { reviews: totalReviews, rating: totalRating })
+      }
+    }
+    res.status(200).json("reviews added to product");
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error.toString(),
+    });
+  }
+};
+
+

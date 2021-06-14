@@ -11,6 +11,12 @@ router.post(
   ProductController.createproduct
 );
 
+router.post(
+  "/add-review",
+  // checkAuthMiddleware.checkAuth,
+  ProductController.addReview
+);
+
 router.get(
   "/list",
   // checkAuthMiddleware.checkAuth,

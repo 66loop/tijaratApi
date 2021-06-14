@@ -361,6 +361,39 @@ exports.markPaymentMethodAsPrimary = async function (req, res) {
 
 };
 
+/********************receive feedback of Buyer*******************/
+exports.receiveFeedback = async function (req, res) {
+  const { sellerId, review } = req.body;
+  console.log(sellerId, 'buyer Id');
+  Seller.findOne({ _id: sellerId })
+    .then((result) => {
+      if (result) {
+        let totalRating = 0;
+        if (result.reviews.length > 0) {
+          totalRating = (((result.reviews.map(item => item.rating).reduce((prev, next) => prev + next)) + review.rating) / (result.reviews.length + 1)).toFixed(1);
+        }
+        else {
+          totalRating = review.rating;
+        }
+        let totalReviews = [...result.reviews, review];
+        Seller.updateOne({ _id: sellerId }, { reviews: totalReviews, rating: totalRating })
+          .then((SellerUpdated) => {
+            res.status(200).json({ message: "Review added" });
+          })
+          .catch((error) => {
+            res.status(500).json({ message: "Something went wrong", error: error.toString() });
+          });
+      }
+      else {
+        res.status(201).json({ message: "Seller Not Found" });
+      }
+
+    })
+    .catch((error) => {
+      res.status(500).json({ message: "Something went wrong", error: error.toString() });
+    });
+};
+
 
 function validateResponse(res, postJson, schema) {
   const v = new validator();
