@@ -15,6 +15,12 @@ router.get(
   OrderController.getOrder
 );
 
+router.get(
+  "/get-by-review/:reviewKey",
+  // checkAuthMiddleware.checkAuth,
+  OrderController.getOrderByReviewKey
+);
+
 router.patch(
   "/:orderId",
   checkAuthMiddleware.checkAuth,

@@ -22,7 +22,8 @@ var OrderSchema = mongoose.Schema({
             }
         }
     ],
-    overAllOrderStatus: { type: String, default: 'Processing' }
+    overAllOrderStatus: { type: String, default: 'Processing' },
+    reviewKey: { type: String }
 }, { timestamps: true });
 
 var Order = mongoose.model("Order", OrderSchema);

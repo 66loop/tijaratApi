@@ -11,12 +11,14 @@ var categoriesRouter = require("./routes/categories");
 var sellerRouter = require("./routes/seller");
 var orderRouter = require("./routes/order");
 var buyerRouter = require("./routes/buyer");
+var OrderController = require("./controllers/OrderController");
 var mongoose = require("mongoose");
 var bodyParser = require('body-parser');
 var multer = require('multer');
 var upload = multer();
 var cors = require('cors')
 var app = express();
+const cron = require('node-cron');
 
 // multer upload
 // app.use(upload.array());
@@ -73,4 +75,10 @@ mongoose
   })
   .then(console.log("MongoDB Connected"))
   .catch((error) => console.log(error.message));
+
+cron.schedule('* * * * *', async () => {
+  await OrderController.sendEmailForReview();
+}, {
+  scheduled: false
+});
 module.exports = app;
