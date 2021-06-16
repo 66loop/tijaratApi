@@ -282,7 +282,7 @@ exports.sendEmailForReview = async function () {
                 const reviewKey = Math.random().toString(36).substring(7);
 
                 await Order.updateOne({ _id: element._id }, { reviewKey: reviewKey });
-                body = body.replace('{link}', constants.constants.baseUrl + "?" + reviewKey)
+                body = body.replace('{link}', constants.constants.baseUrl + "?reviewKey=" + reviewKey)
                 await emailSending.sendEMessage("Please review product you received", body, { email: "usamadanish22@gmail.com" })
             } catch (error) {
                 console.log(error, 'error')
