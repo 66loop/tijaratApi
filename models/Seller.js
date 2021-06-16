@@ -21,7 +21,7 @@ var SellerSchema = mongoose.Schema({
     }
   ],
   deliveryDays: Number,
-  rating: { type: Number, default: false },
+  rating: { type: Number, default: 0 },
   reviews: Array
 });
 

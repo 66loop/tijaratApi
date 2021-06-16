@@ -11,7 +11,7 @@ var BuyerSchema = mongoose.Schema({
   facebookId: String,
   googleId: String,
   registeredAsSeller: { type: Boolean, default: false },
-  rating: { type: Number, default: false },
+  rating: { type: Number, default: 0 },
   reviews: Array
 });
 
