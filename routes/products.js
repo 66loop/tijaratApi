@@ -24,6 +24,12 @@ router.get(
 );
 
 router.get(
+  "/home",
+  // checkAuthMiddleware.checkAuth,
+  ProductController.homeScreen
+);
+
+router.get(
   "/by-seller/:sellerid",
   checkAuthMiddleware.checkAuth,
   ProductController.getAllproductsOfSeller

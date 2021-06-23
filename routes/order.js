@@ -5,7 +5,7 @@ var checkAuthMiddleware = require("../middleware/check-auth");
 
 router.post(
   "/",
-  checkAuthMiddleware.checkAuth,
+  // checkAuthMiddleware.checkAuth,
   OrderController.createOrder
 );
 
@@ -19,6 +19,12 @@ router.get(
   "/get-by-review/:reviewKey",
   // checkAuthMiddleware.checkAuth,
   OrderController.getOrderByReviewKey
+);
+
+router.get(
+  "/get-by-id/:orderId",
+  // checkAuthMiddleware.checkAuth,
+  OrderController.getOrderById
 );
 
 router.patch(

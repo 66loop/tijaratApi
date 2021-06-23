@@ -719,7 +719,6 @@ exports.uploadImage = function (req, res) {
   });
 };
 
-
 const updateUserAndBuyerIfRegisteredAsSeller = async (email, updateProps, from = "user") => {
 
   let promisesOfUpdates = [

@@ -2,6 +2,7 @@ var mongoose = require("mongoose");
 
 var OrderSchema = mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'Buyer' },
     masterOrderNumber: Number,
     orders: [
         {

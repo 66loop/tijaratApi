@@ -3,6 +3,8 @@ const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
 const product = require("../models/Product");
 const bucketurl = require("../config/BucketUrl");
+const categories = require("../controllers/CategoryController");
+
 /********************products List*******************/
 exports.getAllproducts = function (req, res, next) {
   product
@@ -350,5 +352,28 @@ exports.addReview = async function (req, res, next) {
     });
   }
 };
+
+exports.homeScreen = async function (req, res) {
+  let newItems = [];
+  let categoriesFound = [];
+  let subCategories = [];
+  try {
+    newItems = await product.find({ new: true });
+    categoriesFound = await categories.categories();
+    subCategories = await categories.subCategories();
+
+    return res.status(200).json({ message: "reviews added to product", data: { new: newItems, categories: categoriesFound, subCategories: subCategories } });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: "Something went wrong",
+      error: error.toString(),
+    });
+  }
+
+
+
+
+}
 
 

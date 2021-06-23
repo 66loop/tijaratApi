@@ -77,8 +77,9 @@ mongoose
   .catch((error) => console.log(error.message));
 
 cron.schedule('* * * * *', async () => {
+  console.log('----------------------')
   await OrderController.sendEmailForReview();
 }, {
-  scheduled: false
+  scheduled: true
 });
 module.exports = app;
