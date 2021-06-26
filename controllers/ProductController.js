@@ -124,7 +124,15 @@ exports.updateproduct = function (req, res, next) {
   }
 
   if (req.body.images) {
-    updatedproduct.pictures.push(...req.body.images);
+      // console.log(req.body.images, 'imagesssss');
+      // console.log(typeof req.body.images, 'imagesssss');
+     let pastImages = JSON.parse(req.body.images)
+     console.log(pastImages, 'pastImages');
+  
+      // for (let index = 0; index < pastImages.length; index++) {
+      //     updatedproduct.pictures.push(pastImages[index]);
+      // }
+    updatedproduct.pictures.push(...pastImages);
   }
 
   console.log(updatedproduct.pictures, 'updated product');
@@ -160,7 +168,8 @@ exports.updateproduct = function (req, res, next) {
   product
     .updateOne({ _id: id }, updatedproduct)
     .then((result) => {
-      if (result.nModified) {
+      console.log('result', result)
+      if (result.n) {
         product
           .findById(id)
           .populate('serllerId')
@@ -168,6 +177,7 @@ exports.updateproduct = function (req, res, next) {
             res.status(201).json(resultInner);
           })
           .catch((error) => {
+            console.log('error', error)
             res.status(500).json({
               message: "Something went wrong",
               error: error,
