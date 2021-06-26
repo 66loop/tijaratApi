@@ -5,10 +5,34 @@ const Category = require("../models/Category");
 const SubCategory = require("../models/SubCategory");
 const SubCategoryController = require("./SubCategoryController");
 
+const categories = () => {
+  return Category.find()
+    // .then(async (result) => {
+    //   let categories = [];
+    //   for (let index = 0; index < result.length; index++) {
+    //     const element = result[index];
+    //     let subCategories = await SubCategory.find({ category: element._id });
+
+    //     categories.push({
+    //       category: element,
+    //       subCategories: subCategories
+    //     });
+    //   }
+    //   res.status(201).json(categories);
+
+    // })
+}
+
+exports.categories = () => {
+  return Category.find();
+}
+
+exports.subCategories = () => {
+  return SubCategory.find();
+}
 /********************categorys List*******************/
 exports.getAllcategories = function (req, res, next) {
-  Category
-    .find()
+  categories()
     .then(async (result) => {
       let categories = [];
       for (let index = 0; index < result.length; index++) {

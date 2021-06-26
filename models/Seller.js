@@ -20,7 +20,9 @@ var SellerSchema = mongoose.Schema({
       type: mongoose.Schema.Types.Mixed
     }
   ],
-  deliveryDays: Number
+  deliveryDays: Number,
+  rating: { type: Number, default: 0 },
+  reviews: Array
 });
 
 var Seller = mongoose.model("Seller", SellerSchema);

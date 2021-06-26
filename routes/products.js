@@ -11,10 +11,22 @@ router.post(
   ProductController.createproduct
 );
 
+router.post(
+  "/add-review",
+  // checkAuthMiddleware.checkAuth,
+  ProductController.addReview
+);
+
 router.get(
   "/list",
   // checkAuthMiddleware.checkAuth,
   ProductController.getAllproducts
+);
+
+router.get(
+  "/home",
+  // checkAuthMiddleware.checkAuth,
+  ProductController.homeScreen
 );
 
 router.get(
@@ -28,6 +40,13 @@ router.get(
   // checkAuthMiddleware.checkAuth,
   ProductController.searchProduct
 );
+
+router.get(
+  "/advance-search-product",
+  // checkAuthMiddleware.checkAuth,
+  ProductController.advanceSearchProduct
+);
+
 router.get(
   "/:productId",
   checkAuthMiddleware.checkAuth,

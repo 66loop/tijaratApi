@@ -2,7 +2,10 @@ const bcryptjs = require("bcryptjs");
 const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
 const product = require("../models/Product");
-const bucketurl = require("../config/BucketUrl")
+const bucketurl = require("../config/BucketUrl");
+const categories = require("../controllers/CategoryController");
+var mongoose = require("mongoose");
+
 /********************products List*******************/
 exports.getAllproducts = function (req, res, next) {
   product
@@ -39,6 +42,60 @@ exports.searchProduct = function (req, res, next) {
 
       } else {
         res.status(201).json({ message: "product Not Found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: error,
+      });
+    });
+};
+
+/********************products List*******************/
+exports.advanceSearchProduct = function (req, res, next) {
+  let queryObject = { '$and': [] };
+  console.log(req.query, 'req');
+  const { txt, city, priceTo, priceFrom, category, condition } = req.query;
+
+  if (txt) {
+    queryObject.$and.push({ '$text': { '$search': txt } });
+  }
+
+  if (city) {
+    queryObject.$and.push({ 'cities': { $in: city } });
+  }
+
+  if (priceFrom && priceTo) {
+    queryObject.$and.push({ 'price': { $gte: priceFrom, $lte: priceTo } });
+  }
+  else if (priceFrom) {
+    queryObject.$and.push({ 'price': { $gte: priceFrom } });
+  }
+  else if (priceTo) {
+    queryObject.$and.push({ 'price': { $lte: priceTo } });
+  }
+
+  if (condition) {
+    queryObject.$and.push({ 'condition': condition });
+  }
+
+  if (category) {
+    queryObject.$and.push({ 'category': mongoose.Types.ObjectId(category) });
+
+  }
+
+
+  product
+    .find(queryObject)
+    .populate('serllerId category subCategory')
+    .then((result) => {
+      if (result) {
+
+        res.status(201).json(result);
+
+      } else {
+        res.status(201).json({ message: "products Not Found" });
       }
     })
     .catch((error) => {
@@ -109,7 +166,8 @@ exports.updateproduct = function (req, res, next) {
     serllerId: req.body.serllerId,
     condition: req.body.condition,
     category: req.body.category,
-    subCategory: req.body.subCategory
+    subCategory: req.body.subCategory,
+    cities: req.body.cities,
   };
 
 
@@ -235,7 +293,8 @@ exports.createproduct = function (req, res, next) {
     serllerId: req.body.serllerId,
     condition: req.body.condition,
     category: req.body.category,
-    subCategory: req.body.subCategory
+    subCategory: req.body.subCategory,
+    cities: req.body.cities,
   };
   let images = [];
 
@@ -330,3 +389,58 @@ exports.updateproductToInActive = function (req, res, next) {
       });
     });
 };
+
+/********************Update product status*******************/
+exports.addReview = async function (req, res, next) {
+
+  try {
+    for (let index = 0; index < req.body.reviews.length; index++) {
+      const element = req.body.reviews[index];
+      let dbproduct = await product.findOne({ _id: element.product });
+      if (dbproduct) {
+        let totalRating = 0;
+        if (dbproduct.reviews.length > 0) {
+          totalRating = (((dbproduct.reviews.map(item => item.rating).reduce((prev, next) => prev + next)) + element.rating) / (dbproduct.reviews.length + 1)).toFixed(1);
+        }
+        else {
+          totalRating = element.rating;
+        }
+        let totalReviews = [...dbproduct.reviews, element.review];
+
+        await product.updateOne({ _id: dbproduct._id }, { reviews: totalReviews, rating: totalRating })
+      }
+    }
+    res.status(200).json("reviews added to product");
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error.toString(),
+    });
+  }
+};
+
+exports.homeScreen = async function (req, res) {
+  let newItems = [];
+  let categoriesFound = [];
+  let subCategories = [];
+  try {
+    newItems = await product.find({ new: true });
+    categoriesFound = await categories.categories();
+    subCategories = await categories.subCategories();
+
+    return res.status(200).json({ message: "reviews added to product", data: { new: newItems, categories: categoriesFound, subCategories: subCategories } });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: "Something went wrong",
+      error: error.toString(),
+    });
+  }
+
+
+
+
+}
+
+

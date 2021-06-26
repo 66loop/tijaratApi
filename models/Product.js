@@ -20,7 +20,10 @@ var productSchema = mongoose.Schema({
   variants: [],
   serllerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller' },
   condition: String,
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  rating: { type: Number, default: 0 },
+  reviews: Array,
+  cities: { type: Array }
 });
 
 var Product = mongoose.model("Product", productSchema);

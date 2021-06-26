@@ -9,6 +9,12 @@ router.post(
   SellerController.addPaymentMethod
 );
 
+router.post(
+  "/add-review",
+  // checkAuthMiddleware.checkAuth,
+  SellerController.receiveFeedback
+);
+
 router.delete(
   "/remove-payment-method/:method",
   checkAuthMiddleware.checkAuth,

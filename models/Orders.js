@@ -2,6 +2,7 @@ var mongoose = require("mongoose");
 
 var OrderSchema = mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'Buyer' },
     masterOrderNumber: Number,
     orders: [
         {
@@ -22,7 +23,8 @@ var OrderSchema = mongoose.Schema({
             }
         }
     ],
-    overAllOrderStatus: { type: String, default: 'Processing' }
+    overAllOrderStatus: { type: String, default: 'Processing' },
+    reviewKey: { type: String }
 }, { timestamps: true });
 
 var Order = mongoose.model("Order", OrderSchema);

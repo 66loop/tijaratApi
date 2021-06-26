@@ -1,6 +1,7 @@
 const Order = require("../models/Orders");
 const validator = require("fastest-validator");
 const constants = require("../config/constants");
+const emailSending = require('../config/emailSending');
 
 const getOrderNumber = async () => {
     let previousOrders = await Order.countDocuments();
@@ -11,10 +12,12 @@ const getOrderNumber = async () => {
 exports.createOrder = async function (req, res) {
     const user = {
         user: req.body.user,
+        buyer: req.body.buyer,
     };
 
     const schema = {
         user: { type: "string", optional: false },
+        buyer: { type: "string", optional: false },
     };
 
     if (req.body.cart.length < 1) {
@@ -28,7 +31,8 @@ exports.createOrder = async function (req, res) {
     let dataToBeStored = {
         user: req.body.user,
         masterOrderNumber: await getOrderNumber(),
-        orders: []
+        orders: [],
+        buyer: req.body.buyer,
     }
 
     // let differentSellers = cart.map(x => x.product.seller._id).filter((value, index, self) => self.indexOf(value) === index);
@@ -93,6 +97,42 @@ exports.getOrder = async function (req, res) {
 
                 if (differentSellers.length > 1) {
                     let ordersSpecificToASeller = element.orders.filter(item => item.product.seller.toString() === req.params.sellerId);
+                    ordersShouldBe.push({ _id: element._id, user: element.user, masterOrderNumber: element.masterOrderNumber, createdAt: element.createdAt, updatedAt: element.updatedAt, orders: ordersSpecificToASeller });
+                }
+                else {
+                    ordersShouldBe.push(element);
+                }
+            }
+
+            res.status(200).json({
+                message: "Order fetched",
+                order: ordersShouldBe
+            });
+
+        })
+        .catch(error => {
+            res.status(500).json({
+                message: "Something went wrong",
+                error: error.toString(),
+            });
+        })
+};
+
+/********************Get Order*******************/
+exports.getOrderById = async function (req, res) {
+
+    console.log(req.params.orderId, 'you');
+    Order.find({ "_id": req.params.orderId })
+        .populate('user orders.product orders.seller buyer')
+        .then(response => {
+            let ordersShouldBe = [];
+            console.log(response[0].orders[0], 'response');
+            for (let index = 0; index < response.length; index++) {
+                const element = response[index];
+                let differentSellers = element.orders.map(x => x.product.serllerId).filter((value, index, self) => self.indexOf(value) === index);
+
+                if (differentSellers.length > 1) {
+                    let ordersSpecificToASeller = element.orders.filter(item => item.product.serllerId.toString() === req.params.sellerId);
                     ordersShouldBe.push({ _id: element._id, user: element.user, masterOrderNumber: element.masterOrderNumber, createdAt: element.createdAt, updatedAt: element.updatedAt, orders: ordersSpecificToASeller });
                 }
                 else {
@@ -200,6 +240,98 @@ exports.getOrderByUser = async function (req, res) {
                 error: error.toString(),
             });
         })
+};
+
+/********************Get Order*******************/
+exports.getOrder = async function (req, res) {
+
+    console.log(req.params.sellerId, 'you');
+    Order.find({ "orders.seller": req.params.sellerId })
+        .populate('user orders.product orders.seller')
+        .then(response => {
+            let ordersShouldBe = [];
+            console.log(response[0].orders[0], 'response');
+            for (let index = 0; index < response.length; index++) {
+                const element = response[index];
+                console.log(JSON.stringify(element, 'elem'))
+                let differentSellers = element.orders.map(x => x.product.seller).filter((value, index, self) => self.indexOf(value) === index);
+
+                if (differentSellers.length > 1) {
+                    let ordersSpecificToASeller = element.orders.filter(item => item.product.seller.toString() === req.params.sellerId);
+                    ordersShouldBe.push({ _id: element._id, user: element.user, masterOrderNumber: element.masterOrderNumber, createdAt: element.createdAt, updatedAt: element.updatedAt, orders: ordersSpecificToASeller });
+                }
+                else {
+                    ordersShouldBe.push(element);
+                }
+            }
+
+            res.status(200).json({
+                message: "Order fetched",
+                order: ordersShouldBe
+            });
+
+        })
+        .catch(error => {
+            res.status(500).json({
+                message: "Something went wrong",
+                error: error.toString(),
+            });
+        })
+};
+
+/********************Get Order*******************/
+exports.getOrderByReviewKey = async function (req, res) {
+
+    Order.find({ "reviewKey": req.params.reviewKey })
+        .populate('user orders.product orders.seller')
+        .then(response => {
+
+            res.status(200).json({
+                message: "Order fetched",
+                order: response
+            });
+
+        })
+        .catch(error => {
+            res.status(500).json({
+                message: "Something went wrong",
+                error: error.toString(),
+            });
+        })
+};
+
+/********************Get Order*******************/
+exports.sendEmailForReview = async function () {
+    let todayDate = new Date();
+    let dateDayBeforeYesterday = new Date();
+    dateDayBeforeYesterday.setDate(todayDate.getDate() - 2);
+
+    let orders = await Order.find({ $and: [{ updatedAt: { $lt: todayDate } }, { updatedAt: { $gt: dateDayBeforeYesterday } }, { overAllOrderStatus: "Shipped" }] }).populate('user');
+
+
+    let body = '<p style="font-size:18px;">Your order has been delivered yesterday, please review the products in order by clicking the link below<br></br></p>' +
+        '<p>Click the button below to Give Review.</p>' +
+        '<a href="{link}"><button type="button" style="background-color:green;color:white">Give Review</button></a>"' +
+        '<br></br><br></br><p>Questions and Queries? Email info@tijarat.co</p><br></br>';
+    if (orders.length > 0) {
+        for (let index = 0; index < orders.length; index++) {
+            try {
+                const element = orders[index];
+
+                const reviewKey = Math.random().toString(36).substring(7);
+
+                await Order.updateOne({ _id: element._id }, { reviewKey: reviewKey });
+                body = body.replace('{link}', constants.constants.baseUrl + "?reviewKey=" + reviewKey)
+                element.user = { email: 'usamadanish22@gmail.com' }
+                await emailSending.sendEMessage("Please review product you received", body, element.user && element.user.email ? element.user : { email: "usamadanish22@gmail.com" })
+                console.log("email sent")
+            } catch (error) {
+                console.log(error, 'error')
+            }
+
+        }
+    }
+    console.log("not found any order")
 };
 
 function validateResponse(res, postJson, schema) {

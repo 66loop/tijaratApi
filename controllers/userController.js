@@ -398,6 +398,18 @@ exports.login = async function (req, res) {
                     allUserProps["seller"] = seller;
                   }
 
+                  if (allUserProps.user.securityQuestions.length > 0) {
+                    let sq = [];
+                    for (let index = 0; index < allUserProps.user.securityQuestions.length; index++) {
+                      const element = allUserProps.user.securityQuestions[index];
+                      let newObj = {
+                        question: element.question
+                      };
+                      sq.push(newObj);
+                    }
+                    allUserProps.user.securityQuestions = sq;
+
+                  }
                   res.status(200).json({
                     message: "Authentication successful",
                     token: token,
@@ -576,8 +588,9 @@ exports.deleteUser = function (req, res, next) {
 /********************Change Password*******************/
 exports.changePassword = function (req, res, next) {
   try {
+    console.log(req.userData.email, 'email');
     const userRequest = {
-      email: req.body.email,
+      email: req.userData.email,
       oldPassword: req.body.oldPassword,
       password: req.body.password,
 
@@ -591,7 +604,7 @@ exports.changePassword = function (req, res, next) {
 
     validateResponse(res, userRequest, schema);
 
-    User.findOne({ email: req.body.email })
+    User.findOne({ email: req.userData.email })
       .then(async (user) => {
         if (user && await bcryptjs.compareSync(req.body.oldPassword, user.password)) {
           const updatedPassword = bcryptjs.hashSync(req.body.password, 10);
@@ -600,9 +613,9 @@ exports.changePassword = function (req, res, next) {
               if (result) {
 
                 if (user.registeredAsSeller) {
-                  await buyerController.updateBuyer({ email: req.body.email, updatedProps: { password: updatedPassword } })
+                  await buyerController.updateBuyer({ email: req.userData.email, updatedProps: { password: updatedPassword } })
                 }
-                await sellerController.updateSeller({ email: req.body.email, updatedProps: { password: updatedPassword } })
+                await sellerController.updateSeller({ email: req.userData.email, updatedProps: { password: updatedPassword } })
 
                 res.status(201).json({ message: "Password updated successfully." });
 
@@ -718,7 +731,6 @@ exports.uploadImage = function (req, res) {
   });
 };
 
-
 const updateUserAndBuyerIfRegisteredAsSeller = async (email, updateProps, from = "user") => {
 
   let promisesOfUpdates = [
@@ -734,3 +746,30 @@ const updateUserAndBuyerIfRegisteredAsSeller = async (email, updateProps, from =
     .catch(error => error.toString());
 
 };
+
+/********************Update User*******************/
+exports.addOrUpdateSQ = function (req, res, next) {
+  const id = req.params.userId;
+  const updatedUser = {
+    securityQuestions: req.body.securityQuestions,
+  };
+
+  User.updateOne({ _id: id }, updatedUser)
+    .then((result) => {
+      if (result) {
+        res.status(201).json({
+          message: "User Updated",
+          user: result,
+        });
+      } else {
+        res.status(201).json({ message: "User Not Found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: error,
+      });
+    });
+};
+
