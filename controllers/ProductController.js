@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const product = require("../models/Product");
 const bucketurl = require("../config/BucketUrl");
 const categories = require("../controllers/CategoryController");
+var mongoose = require("mongoose");
 
 /********************products List*******************/
 exports.getAllproducts = function (req, res, next) {
@@ -41,6 +42,60 @@ exports.searchProduct = function (req, res, next) {
 
       } else {
         res.status(201).json({ message: "product Not Found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: error,
+      });
+    });
+};
+
+/********************products List*******************/
+exports.advanceSearchProduct = function (req, res, next) {
+  let queryObject = { '$and': [] };
+  console.log(req.query, 'req');
+  const { txt, city, priceTo, priceFrom, category, condition } = req.query;
+
+  if (txt) {
+    queryObject.$and.push({ '$text': { '$search': txt } });
+  }
+
+  if (city) {
+    queryObject.$and.push({ 'cities': { $in: city } });
+  }
+
+  if (priceFrom && priceTo) {
+    queryObject.$and.push({ 'price': { $gte: priceFrom, $lte: priceTo } });
+  }
+  else if (priceFrom) {
+    queryObject.$and.push({ 'price': { $gte: priceFrom } });
+  }
+  else if (priceTo) {
+    queryObject.$and.push({ 'price': { $lte: priceTo } });
+  }
+
+  if (condition) {
+    queryObject.$and.push({ 'condition': condition });
+  }
+
+  if (category) {
+    queryObject.$and.push({ 'category': mongoose.Types.ObjectId(category) });
+
+  }
+
+
+  product
+    .find(queryObject)
+    .populate('serllerId category subCategory')
+    .then((result) => {
+      if (result) {
+
+        res.status(201).json(result);
+
+      } else {
+        res.status(201).json({ message: "products Not Found" });
       }
     })
     .catch((error) => {
@@ -111,7 +166,8 @@ exports.updateproduct = function (req, res, next) {
     serllerId: req.body.serllerId,
     condition: req.body.condition,
     category: req.body.category,
-    subCategory: req.body.subCategory
+    subCategory: req.body.subCategory,
+    cities: req.body.cities,
   };
 
 
@@ -227,7 +283,8 @@ exports.createproduct = function (req, res, next) {
     serllerId: req.body.serllerId,
     condition: req.body.condition,
     category: req.body.category,
-    subCategory: req.body.subCategory
+    subCategory: req.body.subCategory,
+    cities: req.body.cities,
   };
   let images = [];
 

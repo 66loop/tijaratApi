@@ -398,6 +398,18 @@ exports.login = async function (req, res) {
                     allUserProps["seller"] = seller;
                   }
 
+                  if (allUserProps.user.securityQuestions.length > 0) {
+                    let sq = [];
+                    for (let index = 0; index < allUserProps.user.securityQuestions.length; index++) {
+                      const element = allUserProps.user.securityQuestions[index];
+                      let newObj = {
+                        question: element.question
+                      };
+                      sq.push(newObj);
+                    }
+                    allUserProps.user.securityQuestions = sq;
+
+                  }
                   res.status(200).json({
                     message: "Authentication successful",
                     token: token,
@@ -734,3 +746,30 @@ const updateUserAndBuyerIfRegisteredAsSeller = async (email, updateProps, from =
     .catch(error => error.toString());
 
 };
+
+/********************Update User*******************/
+exports.addOrUpdateSQ = function (req, res, next) {
+  const id = req.params.userId;
+  const updatedUser = {
+    securityQuestions: req.body.securityQuestions,
+  };
+
+  User.updateOne({ _id: id }, updatedUser)
+    .then((result) => {
+      if (result) {
+        res.status(201).json({
+          message: "User Updated",
+          user: result,
+        });
+      } else {
+        res.status(201).json({ message: "User Not Found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Something went wrong",
+        error: error,
+      });
+    });
+};
+

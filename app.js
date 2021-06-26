@@ -11,6 +11,7 @@ var categoriesRouter = require("./routes/categories");
 var sellerRouter = require("./routes/seller");
 var orderRouter = require("./routes/order");
 var buyerRouter = require("./routes/buyer");
+const securityQuestionsRouter = require('./routes/securityQuestions');
 var OrderController = require("./controllers/OrderController");
 var mongoose = require("mongoose");
 var bodyParser = require('body-parser');
@@ -46,6 +47,7 @@ app.use("/categories", categoriesRouter);
 app.use("/seller", sellerRouter);
 app.use("/buyer", buyerRouter);
 app.use("/order", orderRouter);
+app.use("/security", securityQuestionsRouter);
 app.use("/test", (req, res, next) => {
   res.send("Success");
 });

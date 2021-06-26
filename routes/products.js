@@ -40,6 +40,13 @@ router.get(
   // checkAuthMiddleware.checkAuth,
   ProductController.searchProduct
 );
+
+router.get(
+  "/advance-search-product",
+  // checkAuthMiddleware.checkAuth,
+  ProductController.advanceSearchProduct
+);
+
 router.get(
   "/:productId",
   checkAuthMiddleware.checkAuth,

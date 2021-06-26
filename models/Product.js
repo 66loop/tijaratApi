@@ -22,7 +22,8 @@ var productSchema = mongoose.Schema({
   condition: String,
   isActive: { type: Boolean, default: true },
   rating: { type: Number, default: 0 },
-  reviews: Array
+  reviews: Array,
+  cities: { type: Array }
 });
 
 var Product = mongoose.model("Product", productSchema);
