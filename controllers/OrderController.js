@@ -58,7 +58,7 @@ exports.createOrder = async function (req, res) {
     Order.create(dataToBeStored).then((response) => {
 
         Order.find({ _id: response._id })
-            .populate('user orders.product orders.seller')
+            .populate('user orders.product orders.seller buyer')
             .then(responseOrder => {
 
                 res.status(200).json({
@@ -86,7 +86,7 @@ exports.getOrder = async function (req, res) {
 
     console.log(req.params.sellerId, 'you');
     Order.find({ "orders.seller": req.params.sellerId })
-        .populate('user orders.product orders.seller')
+        .populate('user orders.product orders.seller buyer')
         .then(response => {
             let ordersShouldBe = [];
             console.log(response[0].orders[0], 'response');
@@ -191,10 +191,10 @@ exports.getOrderByUser = async function (req, res) {
 
     try {
         let incompleteOrders = await Order.find({ $and: [{ user: req.params.userId }, { overAllOrderStatus: { $ne: "Delivered" } }] })
-            .populate('user orders.product orders.seller')
+            .populate('user orders.product orders.seller buyer')
             .sort({ createdAt: -1 });
         let completeOrders = await Order.find({ $and: [{ user: req.params.userId }, { overAllOrderStatus: "Delivered" }] })
-            .populate('user orders.product orders.seller')
+            .populate('user orders.product orders.seller buyer')
             .sort({ createdAt: -1 });
         res.status(200).json({
             message: "Order fetched by user",
@@ -210,7 +210,7 @@ exports.getOrderByUser = async function (req, res) {
 
 
     Order.find({ "orders.seller": req.params.sellerId })
-        .populate('user orders.product orders.seller')
+        .populate('user orders.product orders.seller buyer')
         .then(response => {
             let ordersShouldBe = [];
 
@@ -247,7 +247,7 @@ exports.getOrder = async function (req, res) {
 
     console.log(req.params.sellerId, 'you');
     Order.find({ "orders.seller": req.params.sellerId })
-        .populate('user orders.product orders.seller')
+        .populate('user orders.product orders.seller buyer')
         .then(response => {
             let ordersShouldBe = [];
             console.log(response[0].orders[0], 'response');
@@ -283,7 +283,7 @@ exports.getOrder = async function (req, res) {
 exports.getOrderByReviewKey = async function (req, res) {
 
     Order.find({ "reviewKey": req.params.reviewKey })
-        .populate('user orders.product orders.seller')
+        .populate('user orders.product orders.seller buyer')
         .then(response => {
 
             res.status(200).json({
