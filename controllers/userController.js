@@ -511,26 +511,24 @@ exports.getSellerById = function (req, res, next) {
     });
 };
 /********************Update User*******************/
-exports.updateUser = function (req, res, next) {
+exports.updateUser = async function (req, res, next) {
   const id = req.params.userId;
   const updatedUser = {
-    firstName: req.body.firstname,
-    lastName: req.body.lastname,
-    country: req.body.country,
-    city: req.body.city,
+    name: req.body.firstName + req.body.lastName,
     email: req.body.email,
-    password: req.body.password,
-    userStatusId: req.body.userStatus,
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    country: req.body.country,
+    city: req.body.city
   };
 
   const schema = {
     firstName: { type: "string", optional: false },
     lastName: { type: "string", optional: false },
-    country: { type: "number", optional: false },
-    city: { type: "number", optional: false },
+    country: { type: "string", optional: false },
+    city: { type: "string", optional: false },
     email: { type: "string", optional: false },
-    password: { type: "string", optional: false },
-    userStatusId: { type: "number", optional: false },
+    name: { type: "string", optional: false },
   };
 
   const v = new validator();
@@ -543,23 +541,22 @@ exports.updateUser = function (req, res, next) {
     });
   }
 
-  User.update(updatedUser, { where: { id: id } })
-    .then((result) => {
-      if (result) {
-        res.status(201).json({
-          message: "User Updated",
-          user: result,
-        });
-      } else {
-        res.status(201).json({ message: "User Not Found" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({
-        message: "Something went wrong",
-        error: error,
-      });
+  try {
+
+    await User.updateOne({ _id: id }, updatedUser);
+    await Buyer.updateOne({email: updatedUser.email}, updatedUser);
+    await Seller.updateOne({email: updatedUser.email}, updatedUser);
+
+    res.status(201).json({
+      message: "User Updated"
     });
+    
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error,
+    });
+  }
 };
 
 /********************Delete User*******************/
