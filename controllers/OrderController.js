@@ -191,10 +191,10 @@ exports.updateOrder = async function (req, res) {
 exports.getOrderByUser = async function (req, res) {
 
     try {
-        let incompleteOrders = await Order.find({ $and: [{ user: req.params.userId }, { overAllOrderStatus: { $ne: "Delivered" } }] })
+        let incompleteOrders = await Order.find({ $and: [{ buyer: req.params.userId }, { overAllOrderStatus: { $ne: "Delivered" } }] })
             .populate('user orders.product orders.seller orders.buyer')
             .sort({ createdAt: -1 });
-        let completeOrders = await Order.find({ $and: [{ user: req.params.userId }, { overAllOrderStatus: "Delivered" }] })
+        let completeOrders = await Order.find({ $and: [{ buyer: req.params.userId }, { overAllOrderStatus: "Delivered" }] })
             .populate('user orders.product orders.seller orders.buyer')
             .sort({ createdAt: -1 });
         res.status(200).json({
