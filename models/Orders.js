@@ -9,6 +9,7 @@ var OrderSchema = mongoose.Schema({
             product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
             quantity: Number,
             seller: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller' },
+            buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'Buyer' },
             price: Number,
             total: Number,
             choosenPaymentMethod: {
