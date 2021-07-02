@@ -10,6 +10,9 @@ const nodemailer = require("nodemailer");
 const bucketurl = require("../config/BucketUrl");
 const Buyer = require("../models/Buyer");
 const Seller = require("../models/Seller");
+const constants = require("../config/constants");
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(constants.constants.googleClientId);
 
 /********************Registering a User*******************/
 exports.register = function (req, res, next) {
@@ -357,6 +360,228 @@ exports.socialSignin = async (req, res, next) => {
 
 };
 
+/********************Social Signin with google*******************/
+exports.socialSigninGoogle = async (req, res, next) => {
+  try {
+    const { accessToken, userID, userType } = req.body;
+    console.log(accessToken, userID, 'this is req param');
+    let dataToBeStored = {};
+    const payload = await client.verifyIdToken({
+      idToken: accessToken,
+      audience: constants.constants.googleClientId
+    });
+
+    const data = payload.getPayload();
+
+    dataToBeStored = {
+      googleId: userID,
+      firstName: data.given_name,
+      lastName: data.family_name,
+      email: data.email ? data.email : await common.generateRandomUserName(data.given_name) + "@gmail.com",
+      country: 'Pakistan',
+      city: 'Lahore'
+    };
+
+    User.findOne({ $and: [{ googleId: userID }, { googleId: { $exists: true } }] })
+      .then(foundUser => {
+        if (foundUser) {
+          const token = jwt.sign(
+            {
+              email: foundUser.email,
+              userId: foundUser._id,
+            },
+            "secret",
+            async function (err, token) {
+              let allUserProps = { user: foundUser };
+              allUserProps["buyer"] = await Buyer.findOne({ googleId: userID });
+              if (foundUser.registeredAsSeller) {
+                const seller = await Seller.findOne({ googleId: userID });
+                allUserProps["seller"] = seller;
+              }
+
+              if (allUserProps.user.securityQuestions.length > 0) {
+                let sq = [];
+                for (let index = 0; index < allUserProps.user.securityQuestions.length; index++) {
+                  const element = allUserProps.user.securityQuestions[index];
+                  let newObj = {
+                    question: element.question
+                  };
+                  sq.push(newObj);
+                }
+                allUserProps.user.securityQuestions = sq;
+
+              }
+              res.status(200).json({
+                message: "Authentication successful",
+                token: token,
+                userid: foundUser._id,
+                seller: foundUser.registeredAsSeller,
+                user: allUserProps
+              });
+            }
+          );
+        }
+        else {
+          User.create(dataToBeStored)
+            .then((result) => {
+
+              if (userType === 'user' || userType === 'buyer' || userType === undefined || userType === '') {
+                buyerController.register(dataToBeStored)
+                  .then(() => {
+                    // res.status(201).json({
+                    //   message: "User Created Successfully",
+                    //   user: result,
+                    // });
+
+                    User.findOne({ googleId: userID })
+                      .then((user) => {
+                        if (user === null) {
+                          res.status(401).json({
+                            message: "User Doesn't Exist 1",
+                          });
+                        } else {
+
+                          const token = jwt.sign(
+                            {
+                              email: user.email,
+                              userId: user._id,
+                            },
+                            "secret",
+                            async function (err, token) {
+                              let allUserProps = { user: user };
+                              allUserProps["buyer"] = await Buyer.findOne({ googleId: userID });
+                              if (user.registeredAsSeller) {
+                                const seller = await Seller.findOne({ googleId: userID });
+                                allUserProps["seller"] = seller;
+                              }
+
+                              if (allUserProps.user.securityQuestions.length > 0) {
+                                let sq = [];
+                                for (let index = 0; index < allUserProps.user.securityQuestions.length; index++) {
+                                  const element = allUserProps.user.securityQuestions[index];
+                                  let newObj = {
+                                    question: element.question
+                                  };
+                                  sq.push(newObj);
+                                }
+                                allUserProps.user.securityQuestions = sq;
+
+                              }
+                              res.status(200).json({
+                                message: "Authentication successful",
+                                token: token,
+                                userid: user._id,
+                                seller: user.registeredAsSeller,
+                                user: allUserProps
+                              });
+                            }
+                          );
+
+                        }
+                      })
+                      .catch((error) => {
+                        res.status(500).json({
+                          message: "Something went wrong",
+                          error: error,
+                        });
+                      });
+                  });
+              }
+
+              if (userType === 'seller') {
+
+                buyerController.checkIfBuyerExists(dataToBeStored)
+                  .then((resultUpper) => {
+
+                    let promises = []
+                    if (resultUpper) {
+
+                      promises.push(sellerController.register(dataToBeStored));
+
+                    }
+                    else {
+                      promises.push(sellerController.register(dataToBeStored));
+                      promises.push(buyerController.register(dataToBeStored));
+                    }
+
+                    Promise.all(promises)
+                      .then((resultLower => {
+                        const token = jwt.sign(
+                          {
+                            email: user.email,
+                            userId: user._id,
+                          },
+                          "secret",
+                          async function (err, token) {
+                            let allUserProps = { user: user };
+                            allUserProps["buyer"] = await Buyer.findOne({ googleId: userID });
+                            if (user.registeredAsSeller) {
+                              const seller = await Seller.findOne({ googleId: userID });
+                              allUserProps["seller"] = seller;
+                            }
+
+                            if (allUserProps.user.securityQuestions.length > 0) {
+                              let sq = [];
+                              for (let index = 0; index < allUserProps.user.securityQuestions.length; index++) {
+                                const element = allUserProps.user.securityQuestions[index];
+                                let newObj = {
+                                  question: element.question
+                                };
+                                sq.push(newObj);
+                              }
+                              allUserProps.user.securityQuestions = sq;
+
+                            }
+                            res.status(200).json({
+                              message: "Authentication successful",
+                              token: token,
+                              userid: user._id,
+                              seller: user.registeredAsSeller,
+                              user: allUserProps
+                            });
+                          }
+                        );
+
+                      }))
+                      .catch(error => {
+                        res.status(500).json({
+                          message: "Something went wrong",
+                          error: error,
+                        });
+                      });
+
+
+                  })
+                  .catch((err) => {
+                  })
+
+              }
+            })
+            .catch((error) => {
+              res.status(500).json({
+                message: "Something went wrong",
+                error: error,
+              });
+            });
+        }
+      })
+      .catch(err => {
+        res.status(500).json({
+          message: "Something went wrong",
+          error: err.toString(),
+        });
+      });
+
+  }
+  catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error.toString(),
+    });
+  };
+
+};
+
 /********************User Login*******************/
 
 exports.login = async function (req, res) {
@@ -544,13 +769,13 @@ exports.updateUser = async function (req, res, next) {
   try {
 
     await User.updateOne({ _id: id }, updatedUser);
-    await Buyer.updateOne({email: updatedUser.email}, updatedUser);
-    await Seller.updateOne({email: updatedUser.email}, updatedUser);
+    await Buyer.updateOne({ email: updatedUser.email }, updatedUser);
+    await Seller.updateOne({ email: updatedUser.email }, updatedUser);
 
     res.status(201).json({
       message: "User Updated"
     });
-    
+
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
@@ -608,11 +833,12 @@ exports.changePassword = function (req, res, next) {
           User.updateOne({ _id: user._id }, { password: updatedPassword })
             .then(async (result) => {
               if (result) {
+                await buyerController.updateBuyer({ email: req.userData.email, updatedProps: { password: updatedPassword } })
 
                 if (user.registeredAsSeller) {
-                  await buyerController.updateBuyer({ email: req.userData.email, updatedProps: { password: updatedPassword } })
+                  await sellerController.updateSeller({ email: req.userData.email, updatedProps: { password: updatedPassword } })
+
                 }
-                await sellerController.updateSeller({ email: req.userData.email, updatedProps: { password: updatedPassword } })
 
                 res.status(201).json({ message: "Password updated successfully." });
 
@@ -630,6 +856,73 @@ exports.changePassword = function (req, res, next) {
           res.status(401).json({
             message: "Old password is wrong"
           });
+        }
+      })
+      .catch(err => {
+        res.status(401).json({
+          message: "User not found",
+          error: err.toString(),
+        });
+      });
+  } catch (err) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: err.toString(),
+    });
+  }
+};
+
+/********************Change Password*******************/
+exports.unlinkSocialAccount = function (req, res, next) {
+  try {
+    console.log(req.userData.email, 'email');
+    const userRequest = {
+      email: req.userData.email,
+      platform: req.body.socialPlatform,
+      password: req.body.password
+
+    };
+
+    const schema = {
+      email: { type: "string", optional: false },
+      platform: { type: "string", optional: false },
+      password: { type: "string", optional: false },
+    };
+
+    validateResponse(res, userRequest, schema);
+
+    User.findOne({ email: req.userData.email })
+      .then(async (user) => {
+        const updatedPassword = bcryptjs.hashSync(req.body.password, 10);
+        const updatedProps = {
+          password: updatedPassword
+        };
+        updatedProps[userRequest.platform + 'Id'] = '';
+        if (user) {
+          User.updateOne({ _id: user._id }, updatedProps)
+            .then(async (result) => {
+              if (result) {
+                await buyerController.updateBuyer({ email: req.userData.email, updatedProps: updatedProps })
+
+                if (user.registeredAsSeller) {
+                  await sellerController.updateSeller({ email: req.userData.email, updatedProps: updatedProps })
+
+                }
+
+                res.status(201).json({ message: "Account unlinked successfully." });
+
+              } else {
+                res.status(201).json({ message: "User Not Found" });
+              }
+            })
+            .catch((error) => {
+              res.status(500).json({
+                message: "Something went wrong",
+                error: error.toString(),
+              });
+            });
+        } else {
+          res.status(201).json({ message: "User Not Found" });
         }
       })
       .catch(err => {

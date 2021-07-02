@@ -11,9 +11,11 @@ var upload = require("../config/multerService");
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
 router.post("/socialSignin", UserController.socialSignin);
+router.post("/socialSigninGoogle", UserController.socialSigninGoogle);
 router.post("/seller-login", SellerController.sellerLogin);
 router.post("/forgot-password", UserController.forgotPassword);
 router.post("/change-password", checkAuthMiddleware.checkAuth, UserController.changePassword);
+router.post("/unlink-account", checkAuthMiddleware.checkAuth, UserController.unlinkSocialAccount);
 router.post("/upload-any-image", upload.any('pictures'), UserController.uploadImage);
 /* GET users listing. */
 router.get("/list", checkAuthMiddleware.checkAuth, UserController.getAllUsers);

@@ -27,12 +27,16 @@ exports.checkIfBuyerExists = (user) => {
 
 /********************Updating a Buyer*******************/
 exports.updateBuyer = (buyer) => {
+  console.log(buyer, 'buyer')
   return new Promise((resolve, reject) => {
     Buyer.updateOne({ email: buyer.email }, buyer.updatedProps)
       .then((result) => {
+        console.log(result, 'result');
         resolve()
       })
       .catch((error) => {
+        console.log(error, 'error result');
+
         reject(error);
       });
   });

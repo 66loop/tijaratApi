@@ -9,6 +9,7 @@ var userSchema = mongoose.Schema({
   country: String,
   city: String,
   facebookId: String,
+  googleId: String,
   registeredAsSeller: { type: Boolean, default: false },
   securityQuestions: { type: Array}
 });
