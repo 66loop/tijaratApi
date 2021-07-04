@@ -182,14 +182,14 @@ exports.updateproduct = function (req, res, next) {
   }
 
   if (req.body.images) {
-      // console.log(req.body.images, 'imagesssss');
-      // console.log(typeof req.body.images, 'imagesssss');
-     let pastImages = JSON.parse(req.body.images)
-     console.log(pastImages, 'pastImages');
-  
-      // for (let index = 0; index < pastImages.length; index++) {
-      //     updatedproduct.pictures.push(pastImages[index]);
-      // }
+    // console.log(req.body.images, 'imagesssss');
+    // console.log(typeof req.body.images, 'imagesssss');
+    let pastImages = JSON.parse(req.body.images)
+    console.log(pastImages, 'pastImages');
+
+    // for (let index = 0; index < pastImages.length; index++) {
+    //     updatedproduct.pictures.push(pastImages[index]);
+    // }
     updatedproduct.pictures.push(...pastImages);
   }
 
@@ -304,7 +304,7 @@ exports.createproduct = function (req, res, next) {
 
   createdproduct.pictures = images;
 
-  console.log('hittttttttt', typeof req.body.category)
+  console.log('hittttttttt', req.files)
   const schema = {
     name: { type: "string", optional: false },
     price: { type: "string", optional: false },
@@ -424,12 +424,30 @@ exports.homeScreen = async function (req, res) {
   let newItems = [];
   let categoriesFound = [];
   let subCategories = [];
+  let recommendedItems = [];
+  console.log(typeof req.params.category, 'category');
+  console.log(req.params.subcategory, 'sub-category');
+
   try {
     newItems = await product.find({ new: true });
     categoriesFound = await categories.categories();
     subCategories = await categories.subCategories();
+    if (req.params.category !== "undefined" && req.params.subcategory !== "undefined") {
+      recommendedItems = await product.find({ $and: [{ category: req.params.category }, { subCategory: req.params.subcategory }] });
+    }
+    else if (req.params.category !== "undefined") {
+      recommendedItems = await product.find({ category: req.params.category });
 
-    return res.status(200).json({ message: "reviews added to product", data: { new: newItems, categories: categoriesFound, subCategories: subCategories } });
+    }
+    else if (req.params.subcategory !== "undefined" ) {
+      recommendedItems = await product.find({ subCategory: req.params.subcategory });
+
+    }
+    else {
+      recommendedItems = newItems;
+    }
+
+    return res.status(200).json({ message: "reviews added to product", data: { new: newItems, categories: categoriesFound, subCategories: subCategories, recommendedItems } });
 
   } catch (error) {
     return res.status(500).json({

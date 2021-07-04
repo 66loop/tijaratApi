@@ -24,7 +24,7 @@ router.get(
 );
 
 router.get(
-  "/home",
+  "/home/:category/:subcategory",
   // checkAuthMiddleware.checkAuth,
   ProductController.homeScreen
 );

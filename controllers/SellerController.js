@@ -2,6 +2,17 @@ const Seller = require("../models/Seller");
 const bcryptjs = require("bcryptjs");
 const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
+const bucketurl = require("../config/BucketUrl");
+const fs = require('fs');
+const parse = require('csv-parse');
+var path = require("path");
+const csv = require('@fast-csv/parse');
+const Category = require("../models/Category");
+const SubCategory = require("../models/SubCategory");
+const Product = require("../models/Product");
+
+
+
 
 const updateSellerMethod = (seller) => {
   return new Promise((resolve, reject) => {
@@ -357,6 +368,111 @@ exports.markPaymentMethodAsPrimary = async function (req, res) {
       message: "This method doesn't exists in payment methods."
     });
   }
+
+
+};
+
+/********************mark payment method as primary*******************/
+exports.bulkUpload = async function (req, res) {
+
+  let data = [];
+
+  try {
+    // let images = [];
+    // if (req.files) {
+    //   for (let index = req.files.length; index <= req.files.length; index++) {
+    //     images.push(`${bucketurl}/images/${req.files[index].filename}`);
+    //   }
+    // }
+
+    var jsonPath = path.join(__dirname, '..', 'public', 'images', req.files[req.files.length - 1].filename);
+
+    console.log(jsonPath, 'path');
+
+    //var jsonString = fs.readFileSync(jsonPath, 'utf8');
+
+    await fs.createReadStream(jsonPath)
+      .pipe(csv.parse())
+      .on('error', error => console.error(error))
+      .on('data', row => {
+        data.push(row)
+      })
+      .on('end', async rowCount => {
+
+        let parsedArray = [];
+        for (let index = 1; index < data.length; index++) {
+          const element = data[index];
+          let formattedObject = {};
+
+          for (let pindex = 0; pindex < element.length; pindex++) {
+
+            const innerElement = element[pindex];
+            if (data[0][pindex] == 'category') {
+
+              let category = await Category.findOne({ name: innerElement });
+
+              formattedObject[data[0][pindex]] = category._id;
+
+            }
+
+            else if (data[0][pindex] === 'isActive') {
+
+              formattedObject[data[0][pindex]] = innerElement === "1";
+
+            }
+
+            else if (data[0][pindex] === 'sale') {
+
+              formattedObject[data[0][pindex]] = innerElement === "1";
+
+            }
+
+            else if (data[0][pindex] === 'subCategory') {
+              let subCategory = await SubCategory.findOne({ name: innerElement })
+              formattedObject[data[0][pindex]] = subCategory._id
+
+            }
+            else {
+              formattedObject[data[0][pindex]] = innerElement
+
+            }
+
+          }
+
+          formattedObject.serllerId = req.body.sellerId;
+          formattedObject.new = formattedObject.condition === "New";
+
+          parsedArray.push(formattedObject)
+        }
+
+        await Product.insertMany(parsedArray);
+        res.status(200).json({
+          message: "File uploaded successfully.",
+          files: parsedArray
+
+        });
+      });
+
+
+    // fs.readFileSync(jsonPath, 'utf8', function (err, fileData) {
+    //   console.log(fileData, 'data');
+
+    //   res.status(200).json({
+    //     message: "File uploaded successfully.",
+    //     files: fileData,
+    //     jsonString
+
+    //   });
+
+    // })
+  } catch (error) {
+    return res.status(500).json({
+      message: "Something went wrong please try again",
+      error: error.toString()
+    });
+  }
+
+
 
 
 };

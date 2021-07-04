@@ -1,4 +1,5 @@
 var express = require("express");
+const upload = require("../config/multerService");
 var router = express.Router();
 var SellerController = require("../controllers/SellerController");
 var checkAuthMiddleware = require("../middleware/check-auth");
@@ -30,6 +31,13 @@ router.patch(
   "/mark-payment-method/:method",
   checkAuthMiddleware.checkAuth,
   SellerController.markPaymentMethodAsPrimary
+);
+
+router.post(
+  "/bulk-upload",
+  // checkAuthMiddleware.checkAuth,
+  upload.any('pictures'),
+  SellerController.bulkUpload
 );
 
 
