@@ -168,6 +168,7 @@ exports.updateproduct = function (req, res, next) {
     category: req.body.category,
     subCategory: req.body.subCategory,
     cities: req.body.cities,
+    applyMakeAnOffer: req.body.applyMakeAnOffer || false,
   };
 
 
@@ -295,6 +296,7 @@ exports.createproduct = function (req, res, next) {
     category: req.body.category,
     subCategory: req.body.subCategory,
     cities: req.body.cities,
+    applyMakeAnOffer: req.body.applyMakeAnOffer || false,
   };
   let images = [];
 

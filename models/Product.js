@@ -23,7 +23,8 @@ var productSchema = mongoose.Schema({
   isActive: { type: Boolean, default: true },
   rating: { type: Number, default: 0 },
   reviews: Array,
-  cities: { type: Array }
+  cities: { type: Array },
+  applyMakeAnOffer: { type: Boolean, default: false }
 });
 
 var Product = mongoose.model("Product", productSchema);

@@ -102,8 +102,8 @@ exports.updatecategory = function (req, res, next) {
     });
   }
 
-  Category
-    .updateOne({ _id: id }, updatedcategory)
+  SubCategory
+    .updateMany({}, {image:  "http://159.65.99.140:9000/images/20210714015258607category.jpg"})
     .then((result) => {
       if (result) {
         res.status(201).json({
