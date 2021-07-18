@@ -11,7 +11,8 @@ var userSchema = mongoose.Schema({
   facebookId: String,
   googleId: String,
   registeredAsSeller: { type: Boolean, default: false },
-  securityQuestions: { type: Array}
+  securityQuestions: { type: Array},
+  cart: { type: Array},
 });
 
 var User = mongoose.model("User", userSchema);

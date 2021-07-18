@@ -12,6 +12,7 @@ var sellerRouter = require("./routes/seller");
 var orderRouter = require("./routes/order");
 var buyerRouter = require("./routes/buyer");
 var offerRouter = require("./routes/offer");
+var cartRouter = require("./routes/cart");
 const securityQuestionsRouter = require('./routes/securityQuestions');
 var OrderController = require("./controllers/OrderController");
 var mongoose = require("mongoose");
@@ -50,6 +51,7 @@ app.use("/buyer", buyerRouter);
 app.use("/order", orderRouter);
 app.use("/security", securityQuestionsRouter);
 app.use("/offer", offerRouter);
+app.use("/cart", cartRouter);
 app.use("/test", (req, res, next) => {
   res.send("Success");
 });
