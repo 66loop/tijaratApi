@@ -11,8 +11,12 @@ var userSchema = mongoose.Schema({
   facebookId: String,
   googleId: String,
   registeredAsSeller: { type: Boolean, default: false },
-  securityQuestions: { type: Array},
-  cart: { type: Array},
+  securityQuestions: { type: Array },
+  cart: [{
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    qty: { type: Number },
+    sum: { type: Number }
+  }]
 });
 
 var User = mongoose.model("User", userSchema);

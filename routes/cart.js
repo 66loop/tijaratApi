@@ -9,17 +9,23 @@ router.post(
     CartController.addToCart
 );
 
-// router.get(
-//     "/seller/:sellerId",
-//     //   checkAuthMiddleware.checkAuth,
-//     OfferController.getForSeller
-// );
+router.post(
+    "/remove-from-cart/:userId",
+    //   checkAuthMiddleware.checkAuth,
+    CartController.removeFromCart
+);
 
-// router.get(
-//     "/:offerId",
-//     //   checkAuthMiddleware.checkAuth,
-//     OfferController.getOffer
-// );
+router.post(
+    "/decrement/:userId",
+    //   checkAuthMiddleware.checkAuth,
+    CartController.decrementProductCountFromCart
+);
+
+router.get(
+    "/:userId",
+    //   checkAuthMiddleware.checkAuth,
+    CartController.getCart
+);
 
 // router.patch(
 //     "/seller/:offerId/:rejected",
