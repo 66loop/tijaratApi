@@ -645,11 +645,11 @@ exports.login = async function (req, res) {
                 }
               );
             }
-            //  else {
-            //   res.status(401).json({
-            //     message: "Invalid Credentials",
-            //   });
-            // }
+             else {
+              res.status(401).json({
+                message: "Invalid Credentials",
+              });
+            }
           }
         );
       }
