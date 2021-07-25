@@ -232,9 +232,9 @@ exports.create = function (req, res, next) {
     buyer: { type: "string", optional: false },
     seller: { type: "string", optional: false },
     item: { type: "string", optional: false },
-    quantity: { type: "string", optional: false },
+    quantity: { type: "number", optional: false },
     color: { type: "string", optional: true },
-    priceOfferedFromBuyer: { type: "string", optional: false },
+    priceOfferedFromBuyer: { type: "number", optional: false },
   };
 
   const v = new validator();
