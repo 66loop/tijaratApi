@@ -433,7 +433,7 @@ exports.homeScreen = async function (req, res) {
   try {
     newItems = await product.find({ new: true });
     categoriesFound = await categories.categories();
-    subCategories = await categories.subCategories();
+    // subCategories = await categories.subCategories();
     if (req.params.category !== "undefined" && req.params.subcategory !== "undefined") {
       recommendedItems = await product.find({ $and: [{ category: req.params.category }, { subCategory: req.params.subcategory }] });
     }
@@ -449,7 +449,7 @@ exports.homeScreen = async function (req, res) {
       recommendedItems = newItems;
     }
 
-    return res.status(200).json({ message: "reviews added to product", data: { new: newItems, categories: categoriesFound, subCategories: subCategories, recommendedItems } });
+    return res.status(200).json({ message: "reviews added to product", data: { new: newItems, categories: categoriesFound, recommendedItems } });
 
   } catch (error) {
     return res.status(500).json({
