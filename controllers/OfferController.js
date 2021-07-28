@@ -88,7 +88,7 @@ exports.acceptOrRejectBySeller = async function (req, res, next) {
               if (accepted) {
                 body = '<p style="font-size:18px;">Your offer has been accepted again this product ' + offerFound.item.name + '<br></br></p>' +
                   '<p>Click the button below to proceed with transaction.</p>' +
-                  '<a href="' + constants.constants.actualBaseUrl + '/checkout"><button type="button" style="background-color:green;color:white">Checkout</button></a>"' +
+                  '<a href="' + constants.constants.actualBaseUrl + '?"'+offerFound._id+'"><button type="button" style="background-color:green;color:white">Checkout</button></a>"' +
                   '<br></br><br></br><p>Questions and Queries? Email info@tijarat.co</p><br></br>';
               }
               else {
@@ -149,25 +149,40 @@ exports.acceptOrRejectByBuyer = async function (req, res, next) {
 
       res.status(200).json({ message: "You have accepted the offers in same quantity as you have in your stock, so you can't accept more offers." });
     }
+
+    Offer
+      .updateOne({ _id: id }, { status: accepted ? "OfferAcceptedByBuyer" : "OfferRejectedByBuyer" })
+      .then((result) => {
+        if (result.n) {
+
+          res.status(201).json("Offer" + accepted ? "Accepted" : "rejected");
+
+        } else {
+          res.status(500).json({ message: "Something went wrong" });
+        }
+      })
+      .catch((error) => {
+        res.status(500).json({
+          message: "Something went wrong",
+          error: error,
+        });
+      });
+
+
+  }
+  else {
+    Offer.deleteOne({ _id: id })
+      .then((result) => {
+        res.status(201).json("Offer rejected");
+      })
+      .catch((error) => {
+        res.status(500).json({
+          message: "Something went wrong",
+          error: error,
+        });
+      });
   }
 
-  Offer
-    .updateOne({ _id: id }, { status: accepted ? "OfferAcceptedByBuyer" : "OfferRejectedByBuyer" })
-    .then((result) => {
-      if (result.n) {
-
-        res.status(201).json("Offer" + accepted ? "Accepted" : "rejected");
-
-      } else {
-        res.status(500).json({ message: "Something went wrong" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({
-        message: "Something went wrong",
-        error: error,
-      });
-    });
 };
 
 /********************Update offer*******************/
@@ -187,7 +202,7 @@ exports.counterOfferBySeller = function (req, res, next) {
               let body;
               body = '<p style="font-size:18px;">You got an counter offer against this product => ' + offerFound.item.name + '<br></br></p>' +
                 '<p>Click the button below to proceed with transaction.</p>' +
-                '<a href="' + constants.constants.actualBaseUrl + '/checkout"><button type="button" style="background-color:green;color:white">Checkout</button></a>"' +
+                '<a href="' + constants.constants.actualBaseUrl + '?"'+offerFound._id+'"><button type="button" style="background-color:green;color:white">Checkout</button></a>"' +
                 '<br></br><br></br><p>Questions and Queries? Email info@tijarat.co</p><br></br>';
 
               await emailSending.sendEMessage("Counter Offer", body, offerFound.buyer && offerFound.buyer.email ? offerFound.buyer : { email: "usamadanish22@gmail.com" });
