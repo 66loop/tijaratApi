@@ -88,7 +88,7 @@ exports.acceptOrRejectBySeller = async function (req, res, next) {
               if (accepted) {
                 body = '<p style="font-size:18px;">Your offer has been accepted again this product ' + offerFound.item.name + '<br></br></p>' +
                   '<p>Click the button below to proceed with transaction.</p>' +
-                  '<a href="' + constants.constants.actualBaseUrl + '?"'+offerFound._id+'"><button type="button" style="background-color:green;color:white">Checkout</button></a>"' +
+                  '<a href="' + constants.constants.actualBaseUrl + 'offer-status/?'+id+'"><button type="button" style="background-color:green;color:white">Checkout</button></a>"' +
                   '<br></br><br></br><p>Questions and Queries? Email info@tijarat.co</p><br></br>';
               }
               else {
@@ -202,7 +202,7 @@ exports.counterOfferBySeller = function (req, res, next) {
               let body;
               body = '<p style="font-size:18px;">You got an counter offer against this product => ' + offerFound.item.name + '<br></br></p>' +
                 '<p>Click the button below to proceed with transaction.</p>' +
-                '<a href="' + constants.constants.actualBaseUrl + '?"'+offerFound._id+'"><button type="button" style="background-color:green;color:white">Checkout</button></a>"' +
+                '<a href="' + constants.constants.actualBaseUrl + 'offer-status/?'+id+'"><button type="button" style="background-color:green;color:white">Checkout</button></a>"' +
                 '<br></br><br></br><p>Questions and Queries? Email info@tijarat.co</p><br></br>';
 
               await emailSending.sendEMessage("Counter Offer", body, offerFound.buyer && offerFound.buyer.email ? offerFound.buyer : { email: "usamadanish22@gmail.com" });
@@ -274,7 +274,7 @@ exports.create = function (req, res, next) {
             if (offerFound) {
               let body = '<p style="font-size:18px;">An offer has been made by a buyer to your product ' + offerFound.item.name + '<br></br></p>' +
                 '<p>Click the button below to accept/reject/counter offer.</p>' +
-                '<a href="' + constants.constants.actualBaseUrl + '/vendor/vendor-dashboard"><button type="button" style="background-color:green;color:white">Go to dashboard</button></a>"' +
+                '<a href="' + constants.constants.actualBaseUrl + 'vendor/vendor-dashboard"><button type="button" style="background-color:green;color:white">Go to dashboard</button></a>"' +
                 '<br></br><br></br><p>Questions and Queries? Email info@tijarat.co</p><br></br>';
 
               await emailSending.sendEMessage("New offer", body, offerFound.seller && offerFound.seller.email ? offerFound.seller : { email: "usamadanish22@gmail.com" });
