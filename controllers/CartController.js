@@ -33,6 +33,7 @@ exports.addToCart = async function (req, res) {
         });
       } else {
 
+        dbUser = dbUser.toObject();
         const productId = cartItem.productId;
         let updatedCart;
 
@@ -44,12 +45,18 @@ exports.addToCart = async function (req, res) {
           const newCart = [];
           for (let index = 0; index < dbUser.cart.length; index++) {
             const element = dbUser.cart[index];
+            console.log(JSON.stringify(element), 'element');
             const dbProduct = await Product.findOne({ _id: element.productId });
 
+            console.log(JSON.stringify(dbProduct), 'db product');
+
             if (element.productId == productId) {
+              console.log('before pushing');
               newCart.push({ ...element, qty: element.qty + 1, sum: (dbProduct.price - (dbProduct.price * (dbProduct.discount / 100))) * (element.qty + 1) }) // Increment qty
+              console.log('after pushing');
+
             } else {
-              newCart.push(product)
+              newCart.push(element)
             }
 
           }
@@ -63,7 +70,9 @@ exports.addToCart = async function (req, res) {
           updatedCart = [...dbUser.cart, { qty: cartItem.qty, sum: (dbProduct.price - (dbProduct.price * (dbProduct.discount / 100))) * cartItem.qty, productId: productId }];
         }
 
-        user.updateOne({ _id: req.params.userId }, { $set: { cart: updatedCart } }, { upsert: true })
+        console.log(JSON.stringify(updatedCart), 'updated cart');
+        console.log(JSON.stringify(dbUser.cart), 'previous cart');
+        user.updateOne({ _id: req.params.userId }, { cart: updatedCart })
           .then(updatedUser => {
             res.status(200).json({
               message: "Cart item added",
@@ -129,7 +138,14 @@ exports.removeFromCart = async function (req, res) {
 /********************Add payment method*******************/
 exports.getCart = async function (req, res) {
   user.findOne({ _id: req.params.userId })
-    .populate('cart.productId')
+    .populate([
+      {
+        path: 'cart.productId',
+        populate: [{
+          path: 'serllerId',
+        }],
+      },
+    ])
     .then((dbUser) => {
       if (dbUser === null) {
         res.status(401).json({
@@ -192,7 +208,7 @@ exports.decrementProductCountFromCart = async function (req, res) {
         else {
           cart[previousIndex].qty = cart[previousIndex].qty - 1;
         }
-        
+
         user.updateOne({ _id: req.params.userId }, { cart: cart })
           .then(updatedUser => {
             res.status(200).json({
