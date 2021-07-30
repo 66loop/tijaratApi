@@ -93,6 +93,6 @@ cron.schedule('0 * * * *', async () => {
   console.log('-----expiring offers----')
   await OrderController.sendEmailForReview();
 }, {
-  scheduled: false
+  scheduled: true
 });
 module.exports = app;
