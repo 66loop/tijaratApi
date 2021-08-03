@@ -33,9 +33,9 @@ exports.searchProduct = function (req, res, next) {
     .populate('serllerId category subCategory')
     .then((result) => {
       if (result) {
-        let searchText = req.query.search;
+        let searchText = (req.query.search + "").toLowerCase();
 
-        let arrayToSend = result.filter(x => x.name.includes(searchText) || x.shortDetails.includes(searchText) || x.description.includes(searchText) || x.category.name.includes(searchText) || x.subCategory.name.includes(searchText))
+        let arrayToSend = result.filter(x => x.name.toLowerCase().includes(searchText) || x.shortDetails.toLowerCase().includes(searchText) || x.description.toLowerCase().includes(searchText) || x.category.name.toLowerCase().includes(searchText) || x.subCategory.name.toLowerCase().includes(searchText))
 
         arrayToSend = arrayToSend.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
         res.status(201).json(arrayToSend);
@@ -85,7 +85,7 @@ exports.advanceSearchProduct = function (req, res, next) {
 
   }
 
-
+  console.log(queryObject, 'Query object');
   product
     .find(queryObject)
     .populate('serllerId category subCategory')
