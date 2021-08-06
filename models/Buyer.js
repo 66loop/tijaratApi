@@ -13,7 +13,7 @@ var BuyerSchema = mongoose.Schema({
   registeredAsSeller: { type: Boolean, default: false },
   rating: { type: Number, default: 0 },
   reviews: Array
-});
+}, { timestamps: true });
 
 var Buyer = mongoose.model("Buyer", BuyerSchema);
 

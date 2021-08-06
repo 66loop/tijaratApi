@@ -17,7 +17,7 @@ var userSchema = mongoose.Schema({
     qty: { type: Number },
     sum: { type: Number }
   }]
-});
+}, {timestamps: true});
 
 var User = mongoose.model("User", userSchema);
 

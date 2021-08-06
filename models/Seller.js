@@ -23,7 +23,7 @@ var SellerSchema = mongoose.Schema({
   deliveryDays: Number,
   rating: { type: Number, default: 0 },
   reviews: Array
-});
+}, {timestamps: true});
 
 var Seller = mongoose.model("Seller", SellerSchema);
 
