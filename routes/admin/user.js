@@ -12,17 +12,9 @@ router.get("/", async (req, res, next) => {
     }
 });
 
-router.post("/lock", async (req, res, next) => {
+router.put("/:userId", async (req, res, next) => {
     try {
-        res.send(await userController.updateUser( req.body.userId, { status: 'lock' }))
-    } catch (error) {
-        next(error)
-    }
-});
-
-router.post("/freez", async (req, res, next) => {
-    try {
-        res.send(await userController.updateUser( req.body.userId, { status: 'freez' }))
+        res.send(await userController.updateUser( req.params.userId, req.body))
     } catch (error) {
         next(error)
     }

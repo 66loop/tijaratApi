@@ -20,7 +20,7 @@ const getUsers = async () => {
 }
 
 const getUserById = async (userId) => {
-    const user = await User.findOne(userId);
+    const user = await User.findById(userId);
     if (!user) {
         throw new Error ("User Not Found" );
     }
@@ -28,7 +28,7 @@ const getUserById = async (userId) => {
 }
 
 const updateUser = async (userId, userData ) => {
-    User.updateOne( userId, {...userData});
+    return User.findOneAndUpdate( {_id: userId}, {...userData});
 
 }
 
