@@ -16,7 +16,8 @@ var userSchema = mongoose.Schema({
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     qty: { type: Number },
     sum: { type: Number }
-  }]
+  }],
+  status: {type: String, default: 'active'},
 }, {timestamps: true});
 
 var User = mongoose.model("User", userSchema);

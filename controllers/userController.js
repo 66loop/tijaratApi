@@ -269,7 +269,12 @@ exports.socialSignin = async (req, res, next) => {
         User.findOne({ $and: [{ facebookId: userID }, { facebookId: { $exists: true } }] })
           .then(foundUser => {
             if (foundUser) {
-              const token = jwt.sign(
+              if(foundUser.status !== 'active' ) {
+                res.status(401).json({
+                  message: "Your account is blocked please contect with the sport team",
+                });
+              }
+              jwt.sign(
                 {
                   email: foundUser.email,
                   userId: foundUser._id,
@@ -385,7 +390,12 @@ exports.socialSigninGoogle = async (req, res, next) => {
     User.findOne({ $and: [{ googleId: userID }, { googleId: { $exists: true } }] })
       .then(foundUser => {
         if (foundUser) {
-          const token = jwt.sign(
+          if(foundUser.status !== 'active' ) {
+            res.status(401).json({
+              message: "Your account is blocked please contect with the sport team",
+            });
+          }
+          jwt.sign(
             {
               email: foundUser.email,
               userId: foundUser._id,
@@ -599,6 +609,11 @@ exports.login = async function (req, res) {
 
   User.findOne({ email: req.body.email })
     .then((user) => {
+      if( user.status !== 'active' ) {
+        res.status(401).json({
+          message: "Your account is blocked please contect with the sport team",
+        });
+      }
       if (user === null) {
         res.status(401).json({
           message: "User Doesn't Exist",

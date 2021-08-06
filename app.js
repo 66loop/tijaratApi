@@ -3,6 +3,7 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+var adminRoutes = require('./routes/admin/index')
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
@@ -41,7 +42,7 @@ let pathShouldBe = path.resolve(__dirname, 'public');
 console.log(pathShouldBe, "pathShouldBe")
 app.use(express.static(pathShouldBe));
 // app.use(upload.array()); 
-
+app.use("/admin", adminRoutes);
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/products", productsRouter);
