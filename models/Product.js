@@ -21,6 +21,7 @@ var productSchema = mongoose.Schema({
   serllerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller' },
   condition: String,
   isActive: { type: Boolean, default: true },
+  status: { type: String, default: 'active' },
   rating: { type: Number, default: 0 },
   reviews: Array,
   cities: { type: Array },
