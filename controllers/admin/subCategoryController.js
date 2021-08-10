@@ -30,7 +30,7 @@ const createSubCategory = async (req, res, next) => {
             });
         }
 
-        const subCategory = await SubCategory.create(createdcategory)
+        const subCategory = await SubCategory.create(createdcategory).populate('category')
         if (!subCategory) {
             return res.status(201).json({
                 message: "SubCategory not found",
@@ -43,7 +43,7 @@ const createSubCategory = async (req, res, next) => {
         });
     } catch (error) {
         res.status(500).json({
-            message: error
+            message: error.message
         })
     }
 }
@@ -85,11 +85,11 @@ const updateSubCategory = async (req, res, next) => {
             });
         }
         return res.status(201).json({
-            message: "Category Updated"
+            message: "Sub Category Updated"
           });
     } catch (error) {
         res.status(500).json({
-            message: error
+            message: error.message
         })
     }
 
@@ -97,7 +97,7 @@ const updateSubCategory = async (req, res, next) => {
 
 const getAllSubCategories = async (req, res, next) => {
     try {
-        const SubCategories = await SubCategory.find({category: req.query.categoryId})
+        const SubCategories = await SubCategory.find({category: req.query.categoryId}).populate('category')
         if (!SubCategories) {
             return res.status(401).json({
                 message: "Categories not found"
@@ -109,7 +109,7 @@ const getAllSubCategories = async (req, res, next) => {
         })
     } catch (error) {
         res.status(500).json({
-            message: error
+            message: error.message
         })
     }
 
@@ -118,8 +118,8 @@ const getAllSubCategories = async (req, res, next) => {
 
 const getSubCategoryById = async (req, res, next) => {
     try {
-        const subCategory = await SubCategory.findById(req.params.categoryId)
-        if (!category) {
+        const subCategory = await SubCategory.findById(req.params.categoryId).populate('category')
+        if (!subCategory) {
             return res.status(401).json({
                 message: "Category not found"
             })
@@ -130,7 +130,7 @@ const getSubCategoryById = async (req, res, next) => {
         })
     } catch (error) {
         res.status(500).json({
-            message: error
+            message: error.message
         })
     }
 

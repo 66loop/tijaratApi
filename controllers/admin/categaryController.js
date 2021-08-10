@@ -5,6 +5,8 @@ const bucketurl = require("../../config/BucketUrl");
 
 const createCategory = async (req, res, next) => {
     try {
+        console.log("name", req.body)
+        console.log("file", req.files)
         const createdcategory = {
             name: req.body.name
         };
@@ -41,7 +43,7 @@ const createCategory = async (req, res, next) => {
         });
     } catch (error) {
         res.status(500).json({
-            message: error
+            message: error.message
         })
     }
 }
@@ -49,16 +51,18 @@ const createCategory = async (req, res, next) => {
 
 const updateCategory = async (req, res, next) => {
     try {
+
+        console.log("name", req.body)
+        console.log("file", req.files)
         const updateCategory = {
             name: req.body.name
         };
         let images = [];
-        if(req.files.length> 0) {
+        if(req.files && req.files.length > 0) {
             for (let index = 0; index < req.files.length; index++) {
                 images.push(`${bucketurl}/images/${req.files[index].filename}`);
             }
-            createdcategory.image = images[0]
-    
+            updateCategory.image = images[0]
         }
 
         const schema = {
@@ -86,8 +90,9 @@ const updateCategory = async (req, res, next) => {
             message: "Category Updated"
           });
     } catch (error) {
+        console.log("error", error.message)
         res.status(500).json({
-            message: error
+            message: error.message
         })
     }
 
@@ -107,7 +112,7 @@ const getAllcategories = async (req, res, next) => {
         })
     } catch (error) {
         res.status(500).json({
-            message: error
+            message: error.message
         })
     }
 
@@ -128,7 +133,7 @@ const getcategoryById = async (req, res, next) => {
         })
     } catch (error) {
         res.status(500).json({
-            message: error
+            message: error.message
         })
     }
 

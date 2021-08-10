@@ -9,13 +9,13 @@ const getAllProducts = async (req, res, next) => {
         if (!allPrducts) {
             res.status(401).json({ message: "Products not found" })
         }
-        let filterProducts = allPrducts.filter(product => product.sellerId.status !== 'freez')
-        res.status(201).json({
+        let filterProducts = allPrducts.filter(product => product.serllerId.status !== 'freez')
+        return res.status(201).json({
             message: "Success",
             products: filterProducts
         })
     } catch (error) {
-        res.status(500).json({ message: error })
+        return res.status(500).json({ message: error.message })
 
     }
 
@@ -23,14 +23,14 @@ const getAllProducts = async (req, res, next) => {
 
 const updateProductByadmin = async (req, res, next) => {
     try {
-        let product = await Product.findOneAndUpdate({ _id: req.params.productId }, { ...req.body });
+        await Product.updateOne({ _id: req.params.productId }, { ...req.body });
+        
         res.status(201).json({
             message: "Product updated successfully",
-            product
         })
     } catch (error) {
         res.status(500).json({
-            message: error
+            message: error.message
         })
     }
 }
@@ -147,21 +147,28 @@ const searchProducts = async (req, res, next) => {
             res.status(401).json({ message: "Products Not Found" });
         }
     } catch (error) {
-        res.status(500).json({ message: error })
+        res.status(500).json({ message: error.message })
     }
 
 };
 
 const getAllProductsbySeller = async (req, res, next) => {
-
-    const sellerProducts = await Product.find({ sellerId: req.params.sellerId })
-    if (!sellerProducts) {
-        res.status(401).json({message: "Products not fount"})
+    try {
+        const sellerProducts = await Product.find({ serllerId: req.params.sellerId }).populate('serllerId category subCategory')
+        if (!sellerProducts) {
+            return res.status(401).json({ message: "Products not fount" })
+        }
+        return res.status(201).json({
+            message: "Success",
+            products: sellerProducts
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        })
     }
-    res.status(201).json({
-        message: "Success",
-        products: sellerProducts
-    })
+
+
 
 }
 

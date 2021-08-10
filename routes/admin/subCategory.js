@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const upload = require('../../config/multerService')
 const subCategoryController = require('../../controllers/admin/subCategoryController')
 
 
