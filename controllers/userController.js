@@ -609,7 +609,7 @@ exports.login = async function (req, res) {
 
   User.findOne({ email: req.body.email })
     .then((user) => {
-      if( user.status !== 'active' ) {
+      if(user && user.status !== 'active' ) {
         res.status(401).json({
           message: "Your account is blocked please contect with the sport team",
         });

@@ -4,28 +4,10 @@ var userController = require('../../controllers/admin/userConteroller')
 
 
 /* GET users list. */
-router.get("/", async (req, res, next) => {
-    try {
-        res.send(await userController.getUsers())
-    } catch (error) {
-        next(error)
-    }
-});
+router.get("/", userController.getUsers);
 
-router.put("/:userId", async (req, res, next) => {
-    try {
-        res.send(await userController.updateUser( req.params.userId, req.body))
-    } catch (error) {
-        next(error)
-    }
-});
+router.put("/:userId", userController.updateUser);
 
-router.get("/:userId", async (req, res, next) => {
-    try {
-        res.send(await userController.getUserById( req.params.userId ))
-    } catch (error) {
-        next(error)
-    }
-});
+router.get("/:userId", userController.getUserById);
 
 module.exports = router;
