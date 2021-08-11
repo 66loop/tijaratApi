@@ -143,22 +143,46 @@ exports.getCart = async function (req, res) {
         path: 'cart.productId',
         populate: [{
           path: 'serllerId',
+        },
+        {
+          path: 'category',
+        },
+        {
+          path: 'subCategory'
         }],
       },
     ])
+    .lean()
     .then((dbUser) => {
       if (dbUser === null) {
         res.status(401).json({
           message: "User Doesn't Exist",
         });
       } else {
+
+        const cart = [];
+
+        if (dbUser.cart.length > 0) {
+          for (let index = 0; index < dbUser.cart.length; index++) {
+            const element = dbUser.cart[index];
+            let newObj = {
+              ...element.productId,
+            }
+
+            delete element.productId;
+
+            cart.push({...newObj, ...element});
+          }
+        }
+
         res.status(200).json({
           message: "Cart fetched successfully",
-          cart: dbUser.cart,
+          cart: cart,
         });
       }
     })
     .catch((error) => {
+      console.log(error, 'error');
       res.status(500).json({
         message: "Something went wrong",
         error: error,
