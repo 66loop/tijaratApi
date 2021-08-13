@@ -22,8 +22,11 @@ var SellerSchema = mongoose.Schema({
   ],
   deliveryDays: Number,
   rating: { type: Number, default: 0 },
-  reviews: Array
-}, {timestamps: true});
+  reviews: Array,
+  cnicFI: { type: String },
+  cnicBI: { type: String },
+  verified: { type: Boolean, default: false }
+}, { timestamps: true });
 
 var Seller = mongoose.model("Seller", SellerSchema);
 

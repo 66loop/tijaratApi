@@ -8,6 +8,12 @@ router.get("/", userController.getUsers);
 
 router.put("/:userId", userController.updateUser);
 
+router.get("/sellers", userController.getSellers);
+
 router.get("/:userId", userController.getUserById);
+
+router.put("/verify-seller/:sellerId/:status", userController.updateSellerVerfication);
+
+
 
 module.exports = router;
