@@ -162,16 +162,19 @@ exports.getCart = async function (req, res) {
 
         const cart = [];
 
-        if (dbUser.cart.length > 0) {
+        if (dbUser.cart && dbUser.cart.length > 0) {
           for (let index = 0; index < dbUser.cart.length; index++) {
             const element = dbUser.cart[index];
+
+            delete element._id;
+
             let newObj = {
               ...element.productId,
             }
 
             delete element.productId;
 
-            cart.push({...newObj, ...element});
+            cart.push({ ...newObj, ...element });
           }
         }
 
