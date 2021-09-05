@@ -5,11 +5,14 @@ const addTextCmsCode = async (req, res, next) => {
   try {
     const createdTextSection = {
       section: req.body.section,
-      values: req.body.values,
+      key: req.body.key,
+      value: req.body.value,
     };
 
     const schema = {
       section: { type: "string", optional: false },
+      key: { type: "string", optional: false },
+      value: { type: "string", optional: false },
     };
 
     const v = new validator();
@@ -44,11 +47,14 @@ const updateTextCmsCode = async (req, res, next) => {
   try {
     const updatedTextSection = {
       section: req.body.section,
-      values: req.body.values,
+      key: req.body.key,
+      value: req.body.value,
     };
 
     const schema = {
-      section: { type: "string", optional: false }
+      section: { type: "string", optional: false },
+      key: { type: "string", optional: false },
+      value: { type: "string", optional: false },
     };
 
     const v = new validator();
