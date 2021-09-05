@@ -9,17 +9,7 @@ const getUsers = async (req, res, next) => {
         if (!allUsers) {
             res.status(401).json({ message: "Users Not Found" });
         }
-        let filteredUsers = allUsers.map(user => {
-            return {
-                _id: user._id,
-                email: user.email,
-                userName: user.firstName,
-                name: `${user.firstName} ${user.lastName}`,
-                createdAt: user.createdAt,
-                status: user.status
-            }
-        })
-        res.status(201).json({ message: "Success", users: filteredUsers })
+        res.status(201).json({ message: "Success", users: allUsers })
     } catch (error) {
         res.status(500).json({ message: error })
     }
@@ -96,8 +86,10 @@ const updateSellerVerfication = async (req, res, next) => {
     }
 }
 
-const updateUser = async (userId, userData) => {
+const updateUser = async (req, res, next) => {
     try {
+        const userId = req.params.userId
+        const userData = req.body
         let user = await User.findOneAndUpdate({ _id: userId }, { ...userData });
         if (!user) {
             res.status(401).json({ message: "User Not Found" });
@@ -108,7 +100,6 @@ const updateUser = async (userId, userData) => {
         res.status(500).json({ message: error })
 
     }
-
 }
 
 module.exports = {

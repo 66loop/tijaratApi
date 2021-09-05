@@ -14,6 +14,8 @@ router.post("/",upload.any('pictures'), createproduct)
 
 router.put("/:productId", productController.updateProductByadmin)
 
+router.get("/:productId", productController.getAProduct)
+
 
 
 module.exports = router

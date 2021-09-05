@@ -106,10 +106,27 @@ const getAllProductsbySeller = async (req, res, next) => {
 
 }
 
+const getAProduct =async (req, res, next) => {
+    try {
+        const product = await Product.findOne({ _id: req.params.productId }).populate('serllerId category subCategory')
+        if (!product) {
+            return res.status(401).json({ message: "Products not fount" })
+        }
+        return res.status(201).json({
+            message: "Success",
+            product
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        })
+    }
+}
 
 module.exports = {
     getAllProducts,
     updateProductByadmin,
     searchProducts,
-    getAllProductsbySeller
+    getAllProductsbySeller,
+    getAProduct
 }
