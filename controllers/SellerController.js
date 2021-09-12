@@ -3,47 +3,56 @@ const bcryptjs = require("bcryptjs");
 const validator = require("fastest-validator");
 const jwt = require("jsonwebtoken");
 const bucketurl = require("../config/BucketUrl");
-const fs = require('fs');
-const parse = require('csv-parse');
+const fs = require("fs");
+const parse = require("csv-parse");
 var path = require("path");
-const csv = require('@fast-csv/parse');
+const csv = require("@fast-csv/parse");
 const Category = require("../models/Category");
 const SubCategory = require("../models/SubCategory");
 const Product = require("../models/Product");
-
-
-
+const Order = require("../models/Orders");
 
 const updateSellerMethod = (seller) => {
   return new Promise((resolve, reject) => {
     Seller.updateOne({ email: seller.email }, seller.updatedProps)
       .then((result) => {
-        resolve(result)
+        resolve(result);
       })
       .catch((error) => {
-        console.log(error, 'error');
+        console.log(error, "error");
         reject(error);
       });
   });
 };
+
 /********************Registering a Seller*******************/
 exports.register = (user) => {
-  const newUser = { firstName: user.user.firstName, lastName: user.user.lastName, country: user.user.country, city: user.user.city, email: user.user.email, password: user.user.password, shopImageUrl: user.shopImageUrl, shopName: user.shopName, deliveryDays: user.deliveryDays };
+  const newUser = {
+    firstName: user.user.firstName,
+    lastName: user.user.lastName,
+    country: user.user.country,
+    city: user.user.city,
+    email: user.user.email,
+    password: user.user.password,
+    shopImageUrl: user.shopImageUrl,
+    shopName: user.shopName,
+    deliveryDays: user.deliveryDays,
+  };
   user = newUser;
   user.primaryPaymentMethod = {
-    "method": "COD",
-    "methodDisplayName": "Cash on delivery"
+    method: "COD",
+    methodDisplayName: "Cash on delivery",
   };
   user.paymentMethods = [
     {
-      "method": "COD",
-      "methodDisplayName": "Cash on delivery"
-    }
+      method: "COD",
+      methodDisplayName: "Cash on delivery",
+    },
   ];
   return new Promise((resolve, reject) => {
     Seller.create(user)
       .then((result) => {
-        resolve(result)
+        resolve(result);
       })
       .catch((error) => {
         reject(error);
@@ -55,7 +64,7 @@ exports.checkIfSellerExists = (user) => {
   return new Promise((resolve, reject) => {
     Seller.findOne({ email: user.email })
       .then((result) => {
-        resolve(result)
+        resolve(result);
       })
       .catch((error) => {
         reject(error);
@@ -98,12 +107,11 @@ exports.sellerLogin = async function (req, res) {
                   res.status(200).json({
                     message: "Authentication successful",
                     token: token,
-                    sellerId: user._id
+                    sellerId: user._id,
                   });
                 }
               );
-            }
-            else {
+            } else {
               res.status(401).json({
                 message: "Invalid Credentials",
               });
@@ -124,7 +132,7 @@ exports.updateSeller = (seller) => {
   return new Promise((resolve, reject) => {
     Seller.updateOne({ email: seller.email }, seller.updatedProps)
       .then((result) => {
-        resolve()
+        resolve();
       })
       .catch((error) => {
         reject(error);
@@ -136,7 +144,7 @@ exports.updateSeller = (seller) => {
 exports.addPaymentMethod = async function (req, res) {
   let paymentMethod = {
     method: req.body.method,
-    methodDisplayName: req.body.methodDisplayName
+    methodDisplayName: req.body.methodDisplayName,
   };
 
   let schema = {
@@ -146,8 +154,7 @@ exports.addPaymentMethod = async function (req, res) {
 
   validateResponse(res, paymentMethod, schema);
 
-  if (paymentMethod.method !== 'COD') {
-
+  if (paymentMethod.method !== "COD") {
     paymentMethod = {
       method: req.body.method,
       methodDisplayName: req.body.methodDisplayName,
@@ -163,35 +170,51 @@ exports.addPaymentMethod = async function (req, res) {
     };
 
     validateResponse(res, paymentMethod, schema);
-
   }
 
-  let paymentMethodExistsBefore = await Seller.findOne({ $and: [{ 'paymentMethods': { $exists: true } }, { email: req.userData.email }] })
+  let paymentMethodExistsBefore = await Seller.findOne({
+    $and: [
+      { paymentMethods: { $exists: true } },
+      { email: req.userData.email },
+    ],
+  });
 
-  console.log(paymentMethodExistsBefore.paymentMethods.length, "payment method");
+  console.log(
+    paymentMethodExistsBefore.paymentMethods.length,
+    "payment method"
+  );
 
   if (paymentMethodExistsBefore.paymentMethods.length < 1) {
     console.log("within iff");
-    await updateSellerMethod({ email: req.userData.email, updatedProps: { primaryPaymentMethod: paymentMethod } })
+    await updateSellerMethod({
+      email: req.userData.email,
+      updatedProps: { primaryPaymentMethod: paymentMethod },
+    });
   }
 
-  Seller.findOne({ $and: [{ 'paymentMethods.method': req.body.method }, { email: req.userData.email }] })
+  Seller.findOne({
+    $and: [
+      { "paymentMethods.method": req.body.method },
+      { email: req.userData.email },
+    ],
+  })
     .then((user) => {
       if (user === null) {
-        updateSellerMethod({ email: req.userData.email, updatedProps: { $push: { paymentMethods: paymentMethod } } })
-          .then(result => {
-            console.log(result, 'result')
-            if (result.nModified) {
-              res.status(200).json({
-                message: "Payment method added successfully"
-              });
-            }
-            else {
-              return res.status(500).json({
-                message: "Something went wrong please try again"
-              });
-            }
-          })
+        updateSellerMethod({
+          email: req.userData.email,
+          updatedProps: { $push: { paymentMethods: paymentMethod } },
+        }).then((result) => {
+          console.log(result, "result");
+          if (result.nModified) {
+            res.status(200).json({
+              message: "Payment method added successfully",
+            });
+          } else {
+            return res.status(500).json({
+              message: "Something went wrong please try again",
+            });
+          }
+        });
       } else {
         return res.status(400).json({
           message: "Payment method already exists",
@@ -209,7 +232,7 @@ exports.addPaymentMethod = async function (req, res) {
 /********************remove payment method*******************/
 exports.removePaymentMethod = async function (req, res) {
   let paymentMethod = {
-    method: req.params.method
+    method: req.params.method,
   };
 
   let schema = {
@@ -218,39 +241,54 @@ exports.removePaymentMethod = async function (req, res) {
 
   validateResponse(res, paymentMethod, schema);
 
+  let paymentMethodExistsBefore = await Seller.findOne({
+    $and: [
+      { "primaryPaymentMethod.method": paymentMethod.method },
+      { email: req.userData.email },
+    ],
+  });
 
-  let paymentMethodExistsBefore = await Seller.findOne({ $and: [{ 'primaryPaymentMethod.method': paymentMethod.method }, { email: req.userData.email }] })
-
-  if (paymentMethodExistsBefore && paymentMethodExistsBefore.primaryPaymentMethod.method === paymentMethod.method) {
+  if (
+    paymentMethodExistsBefore &&
+    paymentMethodExistsBefore.primaryPaymentMethod.method ===
+      paymentMethod.method
+  ) {
     if (paymentMethodExistsBefore.paymentMethods.length > 1) {
-      let otherPaymentMethods = paymentMethodExistsBefore.paymentMethods.filter(x => x.method != paymentMethod.method);
-      await Seller.updateOne({ email: req.userData.email }, { primaryPaymentMethod: otherPaymentMethods[0] })
+      let otherPaymentMethods = paymentMethodExistsBefore.paymentMethods.filter(
+        (x) => x.method != paymentMethod.method
+      );
+      await Seller.updateOne(
+        { email: req.userData.email },
+        { primaryPaymentMethod: otherPaymentMethods[0] }
+      );
+    } else {
+      await Seller.updateOne(
+        { email: req.userData.email },
+        { primaryPaymentMethod: {} }
+      );
     }
-    else {
-      await Seller.updateOne({ email: req.userData.email }, { primaryPaymentMethod: {} })
-    }
-
   }
 
-
-  Seller.updateOne({ email: req.userData.email }, { $pull: { 'paymentMethods': { method: paymentMethod.method } } })
-    .then(result => {
-      console.log(result, 'result')
+  Seller.updateOne(
+    { email: req.userData.email },
+    { $pull: { paymentMethods: { method: paymentMethod.method } } }
+  )
+    .then((result) => {
+      console.log(result, "result");
       if (result.nModified) {
         res.status(200).json({
-          message: "Payment method removed successfully"
+          message: "Payment method removed successfully",
         });
-      }
-      else {
+      } else {
         return res.status(500).json({
-          message: "Something went wrong please try again"
+          message: "Something went wrong please try again",
         });
       }
     })
-    .catch(error => {
+    .catch((error) => {
       return res.status(500).json({
         message: "Something went wrong please try again",
-        error: error.toString()
+        error: error.toString(),
       });
     });
 };
@@ -259,7 +297,7 @@ exports.removePaymentMethod = async function (req, res) {
 exports.updateAPaymentMethod = async function (req, res) {
   let paymentMethod = {
     method: req.body.method,
-    methodDisplayName: req.body.methodDisplayName
+    methodDisplayName: req.body.methodDisplayName,
   };
 
   let schema = {
@@ -269,8 +307,7 @@ exports.updateAPaymentMethod = async function (req, res) {
 
   validateResponse(res, paymentMethod, schema);
 
-  if (paymentMethod.method !== 'COD') {
-
+  if (paymentMethod.method !== "COD") {
     paymentMethod = {
       method: req.body.method,
       methodDisplayName: req.body.methodDisplayName,
@@ -286,35 +323,49 @@ exports.updateAPaymentMethod = async function (req, res) {
     };
 
     validateResponse(res, paymentMethod, schema);
-
   }
 
+  let paymentMethodExistsBefore = await Seller.findOne({
+    $and: [
+      { "primaryPaymentMethod.method": paymentMethod.method },
+      { email: req.userData.email },
+    ],
+  });
 
-  let paymentMethodExistsBefore = await Seller.findOne({ $and: [{ 'primaryPaymentMethod.method': paymentMethod.method }, { email: req.userData.email }] })
-
-  if (paymentMethodExistsBefore && paymentMethodExistsBefore.primaryPaymentMethod.method === paymentMethod.method) {
-    await Seller.updateOne({ email: req.userData.email }, { primaryPaymentMethod: paymentMethod })
+  if (
+    paymentMethodExistsBefore &&
+    paymentMethodExistsBefore.primaryPaymentMethod.method ===
+      paymentMethod.method
+  ) {
+    await Seller.updateOne(
+      { email: req.userData.email },
+      { primaryPaymentMethod: paymentMethod }
+    );
   }
 
-
-  Seller.updateOne({ email: req.userData.email, 'paymentMethods.method': paymentMethod.method }, { 'paymentMethods.$': paymentMethod })
-    .then(result => {
-      console.log(result, 'result')
+  Seller.updateOne(
+    {
+      email: req.userData.email,
+      "paymentMethods.method": paymentMethod.method,
+    },
+    { "paymentMethods.$": paymentMethod }
+  )
+    .then((result) => {
+      console.log(result, "result");
       if (result.nModified) {
         res.status(200).json({
-          message: "Payment method updated successfully"
+          message: "Payment method updated successfully",
         });
-      }
-      else {
+      } else {
         return res.status(500).json({
-          message: "Something went wrong please try again"
+          message: "Something went wrong please try again",
         });
       }
     })
-    .catch(error => {
+    .catch((error) => {
       return res.status(500).json({
         message: "Something went wrong please try again",
-        error: error.toString()
+        error: error.toString(),
       });
     });
 };
@@ -322,59 +373,65 @@ exports.updateAPaymentMethod = async function (req, res) {
 /********************mark payment method as primary*******************/
 exports.markPaymentMethodAsPrimary = async function (req, res) {
   let paymentMethod = {
-    method: req.params.method
+    method: req.params.method,
   };
 
   let schema = {
-    method: { type: "string", optional: false }
+    method: { type: "string", optional: false },
   };
 
   validateResponse(res, paymentMethod, schema);
 
-  let paymentMethodExistsBefore = await Seller.findOne({ email: req.userData.email });
+  let paymentMethodExistsBefore = await Seller.findOne({
+    email: req.userData.email,
+  });
 
-  if (paymentMethodExistsBefore && paymentMethodExistsBefore.primaryPaymentMethod.method === paymentMethod.method) {
+  if (
+    paymentMethodExistsBefore &&
+    paymentMethodExistsBefore.primaryPaymentMethod.method ===
+      paymentMethod.method
+  ) {
     return res.status(200).json({
-      message: "This method is marked as primary already"
+      message: "This method is marked as primary already",
     });
   }
 
-  let primaryMethodShouldBe = paymentMethodExistsBefore.paymentMethods.find(x => x.method === paymentMethod.method);
+  let primaryMethodShouldBe = paymentMethodExistsBefore.paymentMethods.find(
+    (x) => x.method === paymentMethod.method
+  );
 
   if (primaryMethodShouldBe) {
-    Seller.updateOne({ email: req.userData.email }, { 'primaryPaymentMethod': primaryMethodShouldBe })
-      .then(result => {
-        console.log(result, 'result')
+    Seller.updateOne(
+      { email: req.userData.email },
+      { primaryPaymentMethod: primaryMethodShouldBe }
+    )
+      .then((result) => {
+        console.log(result, "result");
         if (result.nModified) {
           res.status(200).json({
-            message: "Payment method marked as primary successfully"
+            message: "Payment method marked as primary successfully",
           });
-        }
-        else {
+        } else {
           return res.status(500).json({
-            message: "Something went wrong please try again"
+            message: "Something went wrong please try again",
           });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         return res.status(500).json({
           message: "Something went wrong please try again",
-          error: error.toString()
+          error: error.toString(),
         });
       });
-  }
-  else {
+  } else {
     return res.status(400).json({
-      message: "This method doesn't exists in payment methods."
+      message: "This method doesn't exists in payment methods.",
     });
   }
-
-
 };
 
 /********************mark payment method as primary*******************/
 exports.bulkUpload = async function (req, res) {
-
   let data = [];
 
   try {
@@ -385,74 +442,63 @@ exports.bulkUpload = async function (req, res) {
     //   }
     // }
 
-    var jsonPath = path.join(__dirname, '..', 'public', 'images', req.files[req.files.length - 1].filename);
+    var jsonPath = path.join(
+      __dirname,
+      "..",
+      "public",
+      "images",
+      req.files[req.files.length - 1].filename
+    );
 
-    console.log(jsonPath, 'path');
+    console.log(jsonPath, "path");
 
     //var jsonString = fs.readFileSync(jsonPath, 'utf8');
 
-    await fs.createReadStream(jsonPath)
+    await fs
+      .createReadStream(jsonPath)
       .pipe(csv.parse())
-      .on('error', error => console.error(error))
-      .on('data', row => {
-        data.push(row)
+      .on("error", (error) => console.error(error))
+      .on("data", (row) => {
+        data.push(row);
       })
-      .on('end', async rowCount => {
-
+      .on("end", async (rowCount) => {
         let parsedArray = [];
         for (let index = 1; index < data.length; index++) {
           const element = data[index];
           let formattedObject = {};
 
           for (let pindex = 0; pindex < element.length; pindex++) {
-
             const innerElement = element[pindex];
-            if (data[0][pindex] == 'category') {
-
+            if (data[0][pindex] == "category") {
               let category = await Category.findOne({ name: innerElement });
 
               formattedObject[data[0][pindex]] = category._id;
-
-            }
-
-            else if (data[0][pindex] === 'isActive') {
-
+            } else if (data[0][pindex] === "isActive") {
               formattedObject[data[0][pindex]] = innerElement === "1";
-
-            }
-
-            else if (data[0][pindex] === 'sale') {
-
+            } else if (data[0][pindex] === "sale") {
               formattedObject[data[0][pindex]] = innerElement === "1";
-
+            } else if (data[0][pindex] === "subCategory") {
+              let subCategory = await SubCategory.findOne({
+                name: innerElement,
+              });
+              formattedObject[data[0][pindex]] = subCategory._id;
+            } else {
+              formattedObject[data[0][pindex]] = innerElement;
             }
-
-            else if (data[0][pindex] === 'subCategory') {
-              let subCategory = await SubCategory.findOne({ name: innerElement })
-              formattedObject[data[0][pindex]] = subCategory._id
-
-            }
-            else {
-              formattedObject[data[0][pindex]] = innerElement
-
-            }
-
           }
 
           formattedObject.serllerId = req.body.sellerId;
           formattedObject.new = formattedObject.condition === "New";
 
-          parsedArray.push(formattedObject)
+          parsedArray.push(formattedObject);
         }
 
         await Product.insertMany(parsedArray);
         res.status(200).json({
           message: "File uploaded successfully.",
-          files: parsedArray
-
+          files: parsedArray,
         });
       });
-
 
     // fs.readFileSync(jsonPath, 'utf8', function (err, fileData) {
     //   console.log(fileData, 'data');
@@ -468,48 +514,95 @@ exports.bulkUpload = async function (req, res) {
   } catch (error) {
     return res.status(500).json({
       message: "Something went wrong please try again",
-      error: error.toString()
+      error: error.toString(),
     });
   }
-
-
-
-
 };
 
 /********************receive feedback of Buyer*******************/
 exports.receiveFeedback = async function (req, res) {
   const { sellerId, review } = req.body;
-  console.log(sellerId, 'buyer Id');
+  console.log(sellerId, "buyer Id");
   Seller.findOne({ _id: sellerId })
     .then((result) => {
       if (result) {
         let totalRating = 0;
         if (result.reviews.length > 0) {
-          totalRating = (((result.reviews.map(item => item.rating).reduce((prev, next) => prev + next)) + review.rating) / (result.reviews.length + 1)).toFixed(1);
-        }
-        else {
+          totalRating = (
+            (result.reviews
+              .map((item) => item.rating)
+              .reduce((prev, next) => prev + next) +
+              review.rating) /
+            (result.reviews.length + 1)
+          ).toFixed(1);
+        } else {
           totalRating = review.rating;
         }
         let totalReviews = [...result.reviews, review];
-        Seller.updateOne({ _id: sellerId }, { reviews: totalReviews, rating: totalRating })
+        Seller.updateOne(
+          { _id: sellerId },
+          { reviews: totalReviews, rating: totalRating }
+        )
           .then((SellerUpdated) => {
             res.status(200).json({ message: "Review added" });
           })
           .catch((error) => {
-            res.status(500).json({ message: "Something went wrong", error: error.toString() });
+            res.status(500).json({
+              message: "Something went wrong",
+              error: error.toString(),
+            });
           });
-      }
-      else {
+      } else {
         res.status(201).json({ message: "Seller Not Found" });
       }
-
     })
     .catch((error) => {
-      res.status(500).json({ message: "Something went wrong", error: error.toString() });
+      res
+        .status(500)
+        .json({ message: "Something went wrong", error: error.toString() });
     });
 };
 
+/********************receive feedback of Buyer*******************/
+exports.dashboard = async function (req, res) {
+  try {
+    const sellerId = req.params.id;
+    console.log(sellerId, "buyer Id");
+
+    const products = await Product.countDocuments({ serllerId: sellerId });
+    const orders = await Order.countDocuments({
+      "orders.seller": sellerId,
+      overAllOrderStatus: "Processing",
+    });
+    const TotalOrders = await Order.find({ "orders.seller": sellerId });
+
+    let totalPriceOfOrder = 0;
+
+    for (let index = 0; index < TotalOrders.length; index++) {
+      const element = TotalOrders[index];
+
+      for (let index = 0; index < element.orders.length; index++) {
+        const element1 = element.orders[index];
+        
+        if (element1.seller == sellerId) {
+          totalPriceOfOrder = totalPriceOfOrder + element1.total;
+        }
+      }
+      
+    }
+    res.status(200).json({
+      data: {
+        products,
+        orders,
+        totalPriceOfOrder,
+      },
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.toString() });
+  }
+};
 
 function validateResponse(res, postJson, schema) {
   const v = new validator();

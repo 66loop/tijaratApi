@@ -10,7 +10,7 @@ var mongoose = require("mongoose");
 exports.getAllproducts = function (req, res, next) {
   product
     .find()
-    .populate('serllerId category subCategory')
+    .populate("serllerId category subCategory")
     .then((result) => {
       if (result) {
         res.status(201).json(result);
@@ -30,16 +30,24 @@ exports.getAllproducts = function (req, res, next) {
 exports.searchProduct = function (req, res, next) {
   product
     .find({})
-    .populate('serllerId category subCategory')
+    .populate("serllerId category subCategory")
     .then((result) => {
       if (result) {
         let searchText = (req.query.search + "").toLowerCase();
 
-        let arrayToSend = result.filter(x => x.name.toLowerCase().includes(searchText) || x.shortDetails.toLowerCase().includes(searchText) || x.description.toLowerCase().includes(searchText) || x.category.name.toLowerCase().includes(searchText) || x.subCategory.name.toLowerCase().includes(searchText))
+        let arrayToSend = result.filter(
+          (x) =>
+            x.name.toLowerCase().includes(searchText) ||
+            x.shortDetails.toLowerCase().includes(searchText) ||
+            x.description.toLowerCase().includes(searchText) ||
+            x.category.name.toLowerCase().includes(searchText) ||
+            x.subCategory.name.toLowerCase().includes(searchText)
+        );
 
-        arrayToSend = arrayToSend.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        arrayToSend = arrayToSend.sort(
+          (a, b) => parseFloat(a.price) - parseFloat(b.price)
+        );
         res.status(201).json(arrayToSend);
-
       } else {
         res.status(201).json({ message: "product Not Found" });
       }
@@ -54,46 +62,51 @@ exports.searchProduct = function (req, res, next) {
 
 /********************products List*******************/
 exports.advanceSearchProduct = function (req, res, next) {
-  let queryObject = { '$and': [] };
-  console.log(req.query, 'req');
+  let queryObject = { $and: [] };
+  console.log(req.query, "req");
   const { txt, city, priceTo, priceFrom, category, condition } = req.query;
 
   if (txt) {
-    queryObject.$and.push({ '$text': { '$search': txt } });
+    queryObject.$and.push({ $text: { $search: txt } });
   }
 
-  if (city) {
-    queryObject.$and.push({ 'cities': { $in: city } });
-  }
+  // if (city) {
+  //   queryObject.$and.push({ 'cities': { $in: city } });
+  // }
 
   if (priceFrom && priceTo) {
-    queryObject.$and.push({ 'price': { $gte: priceFrom, $lte: priceTo } });
-  }
-  else if (priceFrom) {
-    queryObject.$and.push({ 'price': { $gte: priceFrom } });
-  }
-  else if (priceTo) {
-    queryObject.$and.push({ 'price': { $lte: priceTo } });
+    queryObject.$and.push({ price: { $gte: priceFrom, $lte: priceTo } });
+  } else if (priceFrom) {
+    queryObject.$and.push({ price: { $gte: priceFrom } });
+  } else if (priceTo) {
+    queryObject.$and.push({ price: { $lte: priceTo } });
   }
 
   if (condition) {
-    queryObject.$and.push({ 'condition': condition });
+    queryObject.$and.push({ condition: condition });
+  } else {
+    queryObject.$and.push({ condition: "New" });
   }
 
   if (category) {
-    queryObject.$and.push({ 'category': mongoose.Types.ObjectId(category) });
-
+    queryObject.$and.push({ category: mongoose.Types.ObjectId(category) });
   }
 
-  console.log(queryObject, 'Query object');
+  console.log(queryObject, "Query object");
   product
     .find(queryObject)
-    .populate('serllerId category subCategory')
+    .populate("serllerId category subCategory")
     .then((result) => {
       if (result) {
+        if (city) {
+          result = result.filter((x) => {
+            if (x.serllerId.city.includes(city)) {
+              return x;
+            }
+          });
+        }
 
         res.status(201).json(result);
-
       } else {
         res.status(201).json({ message: "products Not Found" });
       }
@@ -110,7 +123,7 @@ exports.advanceSearchProduct = function (req, res, next) {
 exports.getAllproductsOfSeller = function (req, res, next) {
   product
     .find({ serllerId: req.params.sellerid })
-    .populate('serllerId category subCategory')
+    .populate("serllerId category subCategory")
     .then((result) => {
       if (result) {
         res.status(201).json(result);
@@ -132,7 +145,7 @@ exports.getproductById = function (req, res, next) {
 
   product
     .findById(id)
-    .populate('serllerId category subCategory')
+    .populate("serllerId category subCategory")
     .then((result) => {
       if (result) {
         res.status(201).json(result);
@@ -168,9 +181,12 @@ exports.updateproduct = function (req, res, next) {
     category: req.body.category,
     subCategory: req.body.subCategory,
     cities: req.body.cities,
-    applyMakeAnOffer: req.body.applyMakeAnOffer == "undefined" ? false : req.body.applyMakeAnOffer,
+    applyMakeAnOffer:
+      req.body.applyMakeAnOffer == "undefined"
+        ? false
+        : req.body.applyMakeAnOffer,
+    deliveryDays: req.body.deliveryDays
   };
-
 
   let images = [];
 
@@ -185,8 +201,8 @@ exports.updateproduct = function (req, res, next) {
   if (req.body.images) {
     // console.log(req.body.images, 'imagesssss');
     // console.log(typeof req.body.images, 'imagesssss');
-    let pastImages = JSON.parse(req.body.images)
-    console.log(pastImages, 'pastImages');
+    let pastImages = JSON.parse(req.body.images);
+    console.log(pastImages, "pastImages");
 
     // for (let index = 0; index < pastImages.length; index++) {
     //     updatedproduct.pictures.push(pastImages[index]);
@@ -194,7 +210,7 @@ exports.updateproduct = function (req, res, next) {
     updatedproduct.pictures.push(...pastImages);
   }
 
-  console.log(updatedproduct.pictures, 'updated product');
+  console.log(updatedproduct.pictures, "updated product");
 
   const schema = {
     name: { type: "string", optional: false },
@@ -227,16 +243,16 @@ exports.updateproduct = function (req, res, next) {
   product
     .updateOne({ _id: id }, updatedproduct)
     .then((result) => {
-      console.log('result', result)
+      console.log("result", result);
       if (result.n) {
         product
           .findById(id)
-          .populate('serllerId')
+          .populate("serllerId")
           .then((resultInner) => {
             res.status(201).json(resultInner);
           })
           .catch((error) => {
-            console.log('error', error)
+            console.log("error", error);
             res.status(500).json({
               message: "Something went wrong",
               error: error,
@@ -258,7 +274,8 @@ exports.updateproduct = function (req, res, next) {
 exports.deleteproduct = function (req, res, next) {
   const id = req.params.productId;
 
-  product.deleteOne({ _id: id })
+  product
+    .deleteOne({ _id: id })
     .then((result) => {
       if (result) {
         res.status(201).json({
@@ -296,7 +313,11 @@ exports.createproduct = function (req, res, next) {
     category: req.body.category,
     subCategory: req.body.subCategory,
     cities: req.body.cities,
-    applyMakeAnOffer: req.body.applyMakeAnOffer == "undefined" ? false : req.body.applyMakeAnOffer,
+    applyMakeAnOffer:
+      req.body.applyMakeAnOffer == "undefined"
+        ? false
+        : req.body.applyMakeAnOffer,
+    deliveryDays: req.body.deliveryDays
   };
   let images = [];
 
@@ -306,7 +327,7 @@ exports.createproduct = function (req, res, next) {
 
   createdproduct.pictures = images;
 
-  console.log('hittttttttt', req.files)
+  console.log("hittttttttt", req.files);
   const schema = {
     name: { type: "string", optional: false },
     price: { type: "string", optional: false },
@@ -337,6 +358,8 @@ exports.createproduct = function (req, res, next) {
     });
   }
 
+  console.log(createdproduct.deliveryDays, 'delivery days');
+  console.log(req.body.deliveryDays, 'delivery days in req');
   product
     .create(createdproduct)
     .then((result) => {
@@ -370,7 +393,7 @@ exports.updateproductToInActive = function (req, res, next) {
       if (result.nModified) {
         product
           .findById(id)
-          .populate('serllerId')
+          .populate("serllerId")
           .then((resultInner) => {
             res.status(201).json(resultInner);
           })
@@ -394,7 +417,6 @@ exports.updateproductToInActive = function (req, res, next) {
 
 /********************Update product status*******************/
 exports.addReview = async function (req, res, next) {
-
   try {
     for (let index = 0; index < req.body.reviews.length; index++) {
       const element = req.body.reviews[index];
@@ -402,18 +424,25 @@ exports.addReview = async function (req, res, next) {
       if (dbproduct) {
         let totalRating = 0;
         if (dbproduct.reviews.length > 0) {
-          totalRating = (((dbproduct.reviews.map(item => item.rating).reduce((prev, next) => prev + next)) + element.rating) / (dbproduct.reviews.length + 1)).toFixed(1);
-        }
-        else {
+          totalRating = (
+            (dbproduct.reviews
+              .map((item) => item.rating)
+              .reduce((prev, next) => prev + next) +
+              element.rating) /
+            (dbproduct.reviews.length + 1)
+          ).toFixed(1);
+        } else {
           totalRating = element.rating;
         }
         let totalReviews = [...dbproduct.reviews, element.review];
 
-        await product.updateOne({ _id: dbproduct._id }, { reviews: totalReviews, rating: totalRating })
+        await product.updateOne(
+          { _id: dbproduct._id },
+          { reviews: totalReviews, rating: totalRating }
+        );
       }
     }
     res.status(200).json("reviews added to product");
-
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
@@ -427,40 +456,43 @@ exports.homeScreen = async function (req, res) {
   let categoriesFound = [];
   let subCategories = [];
   let recommendedItems = [];
-  console.log(typeof req.params.category, 'category');
-  console.log(req.params.subcategory, 'sub-category');
+  console.log(typeof req.params.category, "category");
+  console.log(req.params.subcategory, "sub-category");
 
   try {
     newItems = await product.find({ new: true });
     categoriesFound = await categories.categories();
     // subCategories = await categories.subCategories();
-    if (req.params.category !== "undefined" && req.params.subcategory !== "undefined") {
-      recommendedItems = await product.find({ $and: [{ category: req.params.category }, { subCategory: req.params.subcategory }] });
-    }
-    else if (req.params.category !== "undefined") {
+    if (
+      req.params.category !== "undefined" &&
+      req.params.subcategory !== "undefined"
+    ) {
+      recommendedItems = await product.find({
+        $and: [
+          { category: req.params.category },
+          { subCategory: req.params.subcategory },
+        ],
+      });
+    } else if (req.params.category !== "undefined") {
       recommendedItems = await product.find({ category: req.params.category });
-
-    }
-    else if (req.params.subcategory !== "undefined" ) {
-      recommendedItems = await product.find({ subCategory: req.params.subcategory });
-
-    }
-    else {
+    } else if (req.params.subcategory !== "undefined") {
+      recommendedItems = await product.find({
+        subCategory: req.params.subcategory,
+      });
+    } else {
       recommendedItems = newItems;
     }
 
-    return res.status(200).json({ message: "reviews added to product", data: { new: newItems, categories: categoriesFound, recommendedItems } });
-
+    return res
+      .status(200)
+      .json({
+        message: "reviews added to product",
+        data: { new: newItems, categories: categoriesFound, recommendedItems },
+      });
   } catch (error) {
     return res.status(500).json({
       message: "Something went wrong",
       error: error.toString(),
     });
   }
-
-
-
-
-}
-
-
+};

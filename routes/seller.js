@@ -40,6 +40,12 @@ router.post(
   SellerController.bulkUpload
 );
 
+router.get(
+  "/dashboard/:id",
+  // checkAuthMiddleware.checkAuth,
+  SellerController.dashboard
+);
+
 
 
 module.exports = router;
