@@ -24,6 +24,7 @@ const adminLogin = async (req, res, next) => {
           },
           "secret",
           async function (err, token) {
+            console.log('on success')
             res.status(201).send({
               message: "Authentication successful",
               token: token,
