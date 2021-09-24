@@ -13,16 +13,19 @@ var SellerSchema = mongoose.Schema({
   shopImageUrl: String,
   shopName: String,
   primaryPaymentMethod: {
-    type: mongoose.Schema.Types.Mixed
+    type: mongoose.Schema.Types.Mixed,
   },
   paymentMethods: [
     {
-      type: mongoose.Schema.Types.Mixed
-    }
+      type: mongoose.Schema.Types.Mixed,
+    },
   ],
   deliveryDays: Number,
   rating: { type: Number, default: 0 },
-  reviews: Array
+  reviews: Array,
+  cnicBI: { type: String },
+  cnicFI: { type: String },
+  verified: { type: Boolean, default: false },
 });
 
 var Seller = mongoose.model("Seller", SellerSchema);

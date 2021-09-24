@@ -46,6 +46,19 @@ router.get(
   SellerController.dashboard
 );
 
+router.get(
+  "/get-seller/:id",
+  // checkAuthMiddleware.checkAuth,
+  SellerController.getSeller
+);
+
+router.patch(
+  "/update-seller/:id",
+  // checkAuthMiddleware.checkAuth,
+  SellerController.updateSellerReq
+);
+
+
 
 
 module.exports = router;

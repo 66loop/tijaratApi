@@ -583,12 +583,11 @@ exports.dashboard = async function (req, res) {
 
       for (let index = 0; index < element.orders.length; index++) {
         const element1 = element.orders[index];
-        
+
         if (element1.seller == sellerId) {
           totalPriceOfOrder = totalPriceOfOrder + element1.total;
         }
       }
-      
     }
     res.status(200).json({
       data: {
@@ -597,6 +596,51 @@ exports.dashboard = async function (req, res) {
         totalPriceOfOrder,
       },
     });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.toString() });
+  }
+};
+
+/********************receive feedback of Buyer*******************/
+exports.getSeller = async function (req, res) {
+  try {
+    const sellerId = req.params.id;
+
+    const seller = await Seller.findOne({ _id: sellerId });
+
+    res.status(200).json({
+      data: {
+        seller: seller,
+      },
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.toString() });
+  }
+};
+
+/********************receive feedback of Buyer*******************/
+exports.updateSellerReq = async function (req, res) {
+  try {
+    const sellerId = req.params.id;
+    const sellerToUpdate = { ...req.body };
+    console.log(sellerToUpdate, 'seller to update')
+    Seller.updateOne({ _id: sellerId }, { $set: req.body }, { new: true })
+      .then((result) => {
+        res.status(200).json({
+          data: {
+            seller: result,
+          },
+        });
+      })
+      .catch((error) => {
+        res
+          .status(500)
+          .json({ message: "Something went wrong", error: error.toString() });
+      });
   } catch (error) {
     res
       .status(500)

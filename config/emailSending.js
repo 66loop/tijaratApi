@@ -13,8 +13,8 @@ const sendEMessage = (subject, body, user) => {
                 user: constants.constants.sender,
                 clientId: '536067297075-vva1hc5gc43721k3j6ilju74lojajjti.apps.googleusercontent.com',
                 clientSecret: 'cl965OYFq5jet_py1IL8DwHF',
-                refreshToken: '1//04KKAMj5XKQcFCgYIARAAGAQSNwF-L9IrN3oBS1P8aZwa03_vQ0cPLNhkXK9eVjsWPzgtYzmEtY2D5ut9CEEsvb3HvB-nkHOV6iE',
-                accessToken: 'ya29.a0ARrdaM9Nb2Q65RMVfS1cS8HAMwAqCukHOmeUlThFhSSbZa8LPMuxIc-_nn70bFarQeLmGtk6mDTsZgKndA9ymLJ-nFxpQpW-kCf7U-hG524vJkF_QYXbqSxUkwipYHvecr1pyzsU3dm7Xk9v4xG7npbz2ZHH'
+                refreshToken: '1//04PslmbvDv4P_CgYIARAAGAQSNwF-L9IriyNGkuOvobskGBchnzVP5VG8VPd0tPJ51L51pO16IO8BlPRpQetuTNrojr67_12m94Y',
+                accessToken: 'ya29.a0ARrdaM-7oGtxOUKB8BaZCElQ2ZEJCMgAzNzvsZtH7wIcMfLS0jz3tWnNAaZCkIGbuwdA_r_OcOfW22UMeq5-ow1IBViGafqnvRiXwY2KSC9IB8zD5wpvWq1KNfm0C979Qk2PqtC-Q9VIP73h5ElycU-EfZFv'
             }
             // host: constants.constants.emailHost,
             // port: 465,
@@ -37,7 +37,7 @@ const sendEMessage = (subject, body, user) => {
         return transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.log(error, 'error in mail')
-                return Promise.reject(err);
+                return Promise.reject(error);
             } else {
                 return resolve({ sent: true });
             }

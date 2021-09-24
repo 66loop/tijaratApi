@@ -460,7 +460,7 @@ exports.homeScreen = async function (req, res) {
   console.log(req.params.subcategory, "sub-category");
 
   try {
-    newItems = await product.find({ new: true });
+    newItems = await product.find({ new: true }).populate("serllerId category subCategory");
     categoriesFound = await categories.categories();
     // subCategories = await categories.subCategories();
     if (
@@ -472,13 +472,13 @@ exports.homeScreen = async function (req, res) {
           { category: req.params.category },
           { subCategory: req.params.subcategory },
         ],
-      });
+      }).populate("serllerId category subCategory");
     } else if (req.params.category !== "undefined") {
-      recommendedItems = await product.find({ category: req.params.category });
+      recommendedItems = await product.find({ category: req.params.category }).populate("serllerId category subCategory");
     } else if (req.params.subcategory !== "undefined") {
       recommendedItems = await product.find({
         subCategory: req.params.subcategory,
-      });
+      }).populate("serllerId category subCategory");
     } else {
       recommendedItems = newItems;
     }
