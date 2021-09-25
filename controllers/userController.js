@@ -13,6 +13,7 @@ const Seller = require("../models/Seller");
 const constants = require("../config/constants");
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(constants.constants.googleClientId);
+const emailSending = require('../config/emailSending');
 
 /********************Registering a User*******************/
 exports.register = function (req, res, next) {
@@ -1063,3 +1064,29 @@ exports.addOrUpdateSQ = function (req, res, next) {
     });
 };
 
+
+/*************** Verify User By Email **************/
+exports.verifyUserByEmail = function (req, res, next){
+  // console.log("this is verify api")
+  console.log(req.query.email);
+  
+    User.findOne({ email: req.query.email })
+    .then(async (user) => {
+      if (user === null) {
+        res.status(401).json({
+          message: "User Doesn't Exist",
+        });
+      }else{
+        // console.log(user);
+        let body = '<p style="font-size:18px;">Verify your account by clicking the link below<br></br></p>' +
+        '<p>Click the button below to verify your account.</p>' +
+        '<a href="https://www.google.com"><button type="button" style="background-color:green;color:white">Verify Account</button></a>"' +
+        '<br></br><br></br><p>Questions and Queries? Email info@tijarat.com</p><br></br>';
+        emailSending.sendEMessage("Please verify your Account", body, user )
+      }
+    });
+    return res.status(200).json({
+      message: "Email has been sent successfuly",
+    });
+  
+};

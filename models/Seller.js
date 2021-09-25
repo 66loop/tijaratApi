@@ -20,6 +20,7 @@ var SellerSchema = mongoose.Schema({
       type: mongoose.Schema.Types.Mixed,
     },
   ],
+  verifyPaymentMethod: {type:Boolean, default: false},
   deliveryDays: Number,
   rating: { type: Number, default: 0 },
   reviews: Array,

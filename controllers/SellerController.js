@@ -659,3 +659,35 @@ function validateResponse(res, postJson, schema) {
     });
   }
 }
+
+
+
+/******************** Updates Patment Method *******************/
+
+exports.paymentMethodVerification = function (req, res, next){
+
+  Seller.findOne({ _id: req.query.id })
+    .then((result) => {
+      if (result) {
+        Seller.updateOne(
+          { _id: req.query.id },
+          { verifyPaymentMethod: true }
+        )
+          .then((SellerUpdated) => {
+            res.status(200).json({ message: "Payment Method Updated" });
+          })
+          .catch((error) => {
+            res.status(500).json({
+              message: "Something went wrong",
+              error: error.toString(),
+            });
+          });
+      } else {
+        res.status(201).json({ message: "Seller Not Found" });
+      }
+    })
+
+  return res.status(200).json({
+    message: "Payment method Verified successfully",
+  });
+};

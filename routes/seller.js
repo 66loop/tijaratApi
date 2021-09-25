@@ -58,7 +58,10 @@ router.patch(
   SellerController.updateSellerReq
 );
 
-
+router.get(
+    "/verify-payment-method/:id",
+    SellerController.paymentMethodVerification
+  );
 
 
 module.exports = router;
