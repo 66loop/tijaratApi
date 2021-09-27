@@ -14,7 +14,7 @@ const constants = require("../config/constants");
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(constants.constants.googleClientId);
 const emailSending = require('../config/emailSending');
-
+const uuid = require('uuid');
 /********************Registering a User*******************/
 exports.register = function (req, res, next) {
   User.findOne({ email: req.body.email })
@@ -1078,11 +1078,26 @@ exports.verifyUserByEmail = function (req, res, next){
         });
       }else{
         // console.log(user);
+        Code = uuid.v4();
         let body = '<p style="font-size:18px;">Verify your account by clicking the link below<br></br></p>' +
         '<p>Click the button below to verify your account.</p>' +
-        '<a href="https://www.google.com"><button type="button" style="background-color:green;color:white">Verify Account</button></a>"' +
+        '<a href="http://localhost:9000/users/verifyCode?code="'+Code+'><button type="button" style="background-color:green;color:white">Verify Account</button></a>"' +
         '<br></br><br></br><p>Questions and Queries? Email info@tijarat.com</p><br></br>';
-        emailSending.sendEMessage("Please verify your Account", body, user )
+        console.log(Code);
+        User.updateOne(
+          { email: req.query.email },
+          { emailVerificationCode: Code }
+        )
+          .then((UserUpdated) => {
+            res.status(200).json({ message: "Payment Method Updated" });
+          })
+          .catch((error) => {
+            res.status(500).json({
+              message: "Something went wrong",
+              error: error.toString(),
+            });
+          });
+        // emailSending.sendEMessage("Please verify your Account", body, user )
       }
     });
     return res.status(200).json({

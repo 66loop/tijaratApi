@@ -8,7 +8,7 @@ router.get("/", function (req, res, next) {
 });
 
 router.get(
-  "/verifyemail",
+  "/verifyuser",
   UserController.verifyUserByEmail
   // res.send();
 );

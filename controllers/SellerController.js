@@ -666,11 +666,11 @@ function validateResponse(res, postJson, schema) {
 
 exports.paymentMethodVerification = function (req, res, next){
 
-  Seller.findOne({ _id: req.query.id })
+  Seller.findOne({ _id: req.params.id })
     .then((result) => {
       if (result) {
         Seller.updateOne(
-          { _id: req.query.id },
+          { _id: req.params.id },
           { verifyPaymentMethod: true }
         )
           .then((SellerUpdated) => {
