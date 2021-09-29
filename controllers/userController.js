@@ -1067,10 +1067,9 @@ exports.addOrUpdateSQ = function (req, res, next) {
 
 /*************** Verify User By Email **************/
 exports.verifyUserByEmail = function (req, res, next){
-  // console.log("this is verify api")
-  console.log(req.query.email);
   
-    User.findOne({ email: req.query.email })
+  userEmail = req.params.email;
+    User.findOne({ email: userEmail })
     .then(async (user) => {
       if (user === null) {
         res.status(401).json({
@@ -1081,11 +1080,11 @@ exports.verifyUserByEmail = function (req, res, next){
         Code = uuid.v4();
         let body = '<p style="font-size:18px;">Verify your account by clicking the link below<br></br></p>' +
         '<p>Click the button below to verify your account.</p>' +
-        '<a href="http://localhost:9000/users/verifyCode?code="'+Code+'><button type="button" style="background-color:green;color:white">Verify Account</button></a>"' +
+        '<a href="'+actualBaseUrl+':9000/users/verifyCode/"'+userEmail+'/'+Code+'><button type="button" style="background-color:green;color:white">Verify Account</button></a>"' +
         '<br></br><br></br><p>Questions and Queries? Email info@tijarat.com</p><br></br>';
-        console.log(Code);
+        // console.log(Code);
         User.updateOne(
-          { email: req.query.email },
+          { email: userEmail },
           { emailVerificationCode: Code }
         )
           .then((UserUpdated) => {
@@ -1097,7 +1096,7 @@ exports.verifyUserByEmail = function (req, res, next){
               error: error.toString(),
             });
           });
-        // emailSending.sendEMessage("Please verify your Account", body, user )
+        emailSending.sendEMessage("Please verify your Account", body, user )
       }
     });
     return res.status(200).json({
@@ -1105,3 +1104,32 @@ exports.verifyUserByEmail = function (req, res, next){
     });
   
 };
+
+
+exports.verifyCode = function (req, res, next){
+
+  User.findOne({ email: req.params.email })
+    .then(async (user) => {
+      if (user === null) {
+        res.status(401).json({
+          message: "User Doesn't Exist",
+        });
+      }else{
+        if(user.emailVerificationCode == req.params.code){
+          User.updateOne(
+            { email: req.params.email },
+            { userVerification: true }
+          );
+          return res.status(200).json({
+            message: "Code Verified successfuly",
+          });
+        }else{
+            return res.status(201).json({
+            message: "Not verified",
+          });
+        }
+      }
+    });
+    
+
+}

@@ -17,7 +17,8 @@ var userSchema = mongoose.Schema({
     qty: { type: Number },
     sum: { type: Number }
   }],
-  emailVerificationCode: String
+  emailVerificationCode: String,
+  userVerification: {type: Boolean, default: false}
 });
 
 var User = mongoose.model("User", userSchema);

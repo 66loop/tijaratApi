@@ -8,10 +8,12 @@ router.get("/", function (req, res, next) {
 });
 
 router.get(
-  "/verifyuser",
+  "/verify-user/:email",
   UserController.verifyUserByEmail
-  // res.send();
 );
-
+router.get(
+  "/verify-code/:email/:code",
+  UserController.verifyCode
+);
 
 module.exports = router;
