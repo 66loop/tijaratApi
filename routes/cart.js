@@ -10,6 +10,12 @@ router.post(
 );
 
 router.post(
+    "/add-multiple/:userId",
+    //   checkAuthMiddleware.checkAuth,
+    CartController.addMultipleItemsToCart
+);
+
+router.post(
     "/remove-from-cart/:userId",
     //   checkAuthMiddleware.checkAuth,
     CartController.removeFromCart
