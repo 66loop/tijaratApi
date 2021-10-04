@@ -1078,11 +1078,17 @@ exports.verifyUserByEmail = function (req, res, next){
       }else{
         // console.log(user);
         Code = uuid.v4();
-        let body = '<p style="font-size:18px;">Verify your account by clicking the link below<br></br></p>' +
-        '<p>Click the button below to verify your account.</p>' +
-        '<a href="'+actualBaseUrl+':9000/users/verifyCode/"'+userEmail+'/'+Code+'><button type="button" style="background-color:green;color:white">Verify Account</button></a>"' +
-        '<br></br><br></br><p>Questions and Queries? Email info@tijarat.com</p><br></br>';
+        link = "https://facebook.com";
+        let body = '<p style="font-size:18px;">Your order has been delivered yesterday, please review the products in order by clicking the link below<br></br></p>' +
+        "<p>Click the button below to Give Review.</p>" +
+        '<a href="https://facebook.com"><button type="button" style="background-color:green;color:white">Give Review</button></a>' +
+        "<br></br><br></br><p>Questions and Queries? Email info@tijarat.co</p><br></br>";
         // console.log(Code);
+        // body = body.replace(
+        //   '{link}',
+        //   '"https://facebook.com"'
+        // );
+        console.log(body);
         User.updateOne(
           { email: userEmail },
           { emailVerificationCode: Code }
@@ -1107,7 +1113,7 @@ exports.verifyUserByEmail = function (req, res, next){
 
 
 exports.verifyCode = function (req, res, next){
-
+  
   User.findOne({ email: req.params.email })
     .then(async (user) => {
       if (user === null) {
