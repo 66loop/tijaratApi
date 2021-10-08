@@ -6,9 +6,9 @@ var userController = require('../../controllers/admin/userConteroller')
 /* GET users list. */
 router.get("/", userController.getUsers);
 
-router.put("/:userId", userController.updateUser);
-
 router.get("/sellers", userController.getSellers);
+
+router.put("/:userId", userController.updateUser);
 
 router.get("/:userId", userController.getUserById);
 

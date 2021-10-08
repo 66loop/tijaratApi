@@ -18,32 +18,45 @@ const getUsers = async (req, res, next) => {
 
 const getSellers = async (req, res, next) => {
     try {
-        let allUsers = await User.find({ registeredAsSeller: true }).lean();
+        let allUsers = await Seller.find({});
         if (!allUsers) {
-            res.status(401).json({ message: "Sellers Not Found" });
+            res.status(401).json({ message: "Users Not Found" });
         }
-
-        const usersWithSellers = [];
-
-        for (let index = 0; index < allUsers.length; index++) {
-            const element = allUsers[index];
-            const seller = await Seller.findOne({ email: element.email });
-
-            if (element && seller) {
-                usersWithSellers.push({
-                    user: element,
-                    seller: seller
-                })
-            }
-
-        }
-
-        res.status(201).json({ message: "Success", users: usersWithSellers })
+        res.status(201).json({ message: "Success", sellers: allUsers })
     } catch (error) {
         res.status(500).json({ message: error })
     }
 
 }
+
+// const getSellers = async (req, res, next) => {
+//     try {
+//         let allUsers = await User.find({ registeredAsSeller: true }).lean();
+//         if (!allUsers) {
+//             res.status(401).json({ message: "Sellers Not Found" });
+//         }
+
+//         const usersWithSellers = [];
+
+//         for (let index = 0; index < allUsers.length; index++) {
+//             const element = allUsers[index];
+//             const seller = await Seller.findOne({ email: element.email });
+
+//             if (element && seller) {
+//                 usersWithSellers.push({
+//                     user: element,
+//                     seller: seller
+//                 })
+//             }
+
+//         }
+
+//         res.status(201).json({ message: "Success", users: usersWithSellers })
+//     } catch (error) {
+//         res.status(500).json({ message: error })
+//     }
+
+// }
 
 const getUserById = async (req, res, next) => {
     try {
@@ -106,6 +119,7 @@ module.exports = {
     getUsers,
     updateUser,
     getUserById,
-    getSellers,
-    updateSellerVerfication
+    // getSellers,
+    updateSellerVerfication,
+    getSellers
 }
