@@ -18,7 +18,9 @@ var userSchema = mongoose.Schema({
     sum: { type: Number }
   }],
   status: {type: String, default: 'active'},
-  type: { type: String , default: 'user' }
+  type: { type: String , default: 'user' },
+  emailVerificationCode: String,
+  userVerification: {type: Boolean, default: false}
 }, {timestamps: true});
 
 var User = mongoose.model("User", userSchema);

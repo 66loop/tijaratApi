@@ -178,6 +178,12 @@ exports.createcategory = function (req, res, next) {
     .create(createdcategory)
     .then((result) => {
       let subCategories = [];
+
+      subCategories.push({
+        category: result._id,
+        name: 'Other'
+      });
+
       for (let index = 0; index < req.body.subCategories.length; index++) {
         const element = req.body.subCategories[index];
 

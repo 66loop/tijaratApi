@@ -16,6 +16,12 @@ router.get(
 );
 
 router.get(
+  "/get-recent-orders/:sellerId",
+  // checkAuthMiddleware.checkAuth,
+  OrderController.getRecentOrders
+);
+
+router.get(
   "/get-by-review/:reviewKey",
   // checkAuthMiddleware.checkAuth,
   OrderController.getOrderByReviewKey

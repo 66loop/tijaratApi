@@ -40,6 +40,28 @@ router.post(
   SellerController.bulkUpload
 );
 
+router.get(
+  "/dashboard/:id",
+  // checkAuthMiddleware.checkAuth,
+  SellerController.dashboard
+);
+
+router.get(
+  "/get-seller/:id",
+  // checkAuthMiddleware.checkAuth,
+  SellerController.getSeller
+);
+
+router.patch(
+  "/update-seller/:id",
+  // checkAuthMiddleware.checkAuth,
+  SellerController.updateSellerReq
+);
+
+router.get(
+    "/verify-payment-method/:id",
+    SellerController.paymentMethodVerification
+);
 
 
 module.exports = router;

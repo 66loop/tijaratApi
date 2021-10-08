@@ -25,7 +25,9 @@ var productSchema = mongoose.Schema({
   rating: { type: Number, default: 0 },
   reviews: Array,
   cities: { type: Array },
-  applyMakeAnOffer: { type: Boolean, default: false }
+  applyMakeAnOffer: { type: Boolean, default: false },
+  applyMakeAnOffer: { type: Boolean, default: false },
+  deliveryDays: { type: Number }
 }, { timestamps: true });
 
 var Product = mongoose.model("Product", productSchema);

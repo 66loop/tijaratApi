@@ -13,13 +13,14 @@ var SellerSchema = mongoose.Schema({
   shopImageUrl: String,
   shopName: String,
   primaryPaymentMethod: {
-    type: mongoose.Schema.Types.Mixed
+    type: mongoose.Schema.Types.Mixed,
   },
   paymentMethods: [
     {
-      type: mongoose.Schema.Types.Mixed
-    }
+      type: mongoose.Schema.Types.Mixed,
+    },
   ],
+  verifyPaymentMethod: {type:Boolean, default: false},
   deliveryDays: Number,
   rating: { type: Number, default: 0 },
   reviews: Array,
